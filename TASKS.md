@@ -89,4 +89,16 @@ Estados: **Hecho** (implementado y probado), **Implementado** (falta probarlo a 
 - [x] HUD: "Noche N", y durante el reparto "Reparto: x / 10" y regalos en el trineo. **Hecho** (red y captura)
 - [ ] Flecha o indicador hacia el patio cuando llega el trineo. **Pendiente** (valorar tras probar)
 - [ ] Animación del trineo llegando y sonido de cascabeles (Fase 10). **Pendiente**
-- [ ] Tiempo límite de reparto y resultados de la noche (Fase 9). **Pendiente**
+- [x] Tiempo límite de reparto y resultados de la noche. **Hecho en la Fase 9**
+
+## Fase 9. Ciclo completo
+
+- [x] Fases de cada noche en `WorkshopState`: espera, producción (6 min), reparto (2 min), resultados (15 s) y final. **Hecho** (tests y red)
+- [x] Botón EMPEZAR en el taller; tras Nochebuena, SEGUIR JUGANDO y PARTIDA NUEVA. **Hecho** (tests y red)
+- [x] Objetivo por noche: 6, 8, 10, 12, 14 con un elfo, +2 por cada elfo más; en modo infinito sigue subiendo. Las casas se reparten el objetivo. **Hecho** (tests y red)
+- [x] Si se acaba el tiempo de producción, el trineo se lleva lo que haya. Llenar antes da 1 moneda por cada 5 s sobrantes. **Hecho** (tests)
+- [x] Pantalla de resultados de cada noche y final de Nochebuena con récord (guardado en el PC del anfitrión). **Hecho** (tests, red y captura)
+- [x] Reloj y fase en el HUD. **Hecho** (red y captura)
+- [ ] El botón de regalos gratis de la zona de pruebas sigue ahí y hace trampa: quitarlo cuando el mapa de pruebas pase a ser el taller de verdad (Fase 10). **Pendiente**
+- [ ] Equilibrar tiempos, objetivos y monedas extra tras jugar (la prima por acabar antes puede ser demasiado alta). **Pendiente**
+- [ ] Si alguien entra a mitad de partida no ve los resultados de la noche que se está mostrando. **Pendiente** (menor)

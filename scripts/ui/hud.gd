@@ -11,6 +11,10 @@ var player: Player
 @onready var sack_counter: Label = %SackCounter
 @onready var banner: Label = %Banner
 @onready var frost: ColorRect = %Frost
+@onready var results_panel: PanelContainer = %ResultsPanel
+@onready var results_label: Label = %Results
+
+var _last_phase := -1
 @onready var pause_menu: Control = %PauseMenu
 @onready var sensitivity_slider: HSlider = %SensitivitySlider
 @onready var sensitivity_value: Label = %SensitivityValue
@@ -39,6 +43,7 @@ func _ready() -> void:
 		state.announced.connect(_show_banner)
 		state.upgrade_bought.connect(func(index, buyer):
 			_show_banner("¡%s ha comprado %s!" % [buyer, Upgrades.LIST[index]["name"]]))
+		state.results_ready.connect(show_results)
 		_update_sack(state)
 
 
@@ -88,15 +93,57 @@ func _on_leave_pressed() -> void:
 
 
 func _update_sack(state: WorkshopState) -> void:
-	if state.delivering:
-		var wanted := 0
-		for house in get_tree().get_nodes_in_group("house"):
-			wanted += house.wanted
-		sack_counter.text = "Noche %d     Reparto: %d / %d     Trineo: %d     Monedas: %d" % [
-			state.night, state.delivered, wanted, state.sleigh_gifts, state.money]
-	else:
-		sack_counter.text = "Noche %d     Saco: %d / %d     Monedas: %d" % [
-			state.night, state.gifts_in_sack, state.goal, state.money]
+	var night := "Noche %d/%d" % [state.night, WorkshopState.NIGHTS] if not state.endless else "Noche %d" % state.night
+	var clock := "%d:%02d" % [state.seconds_left / 60, state.seconds_left % 60]
+	var money := "Monedas: %d" % state.money
+	match state.phase:
+		WorkshopState.Phase.LOBBY:
+			sack_counter.text = "Pulsad EMPEZAR en el taller     Saco: %d / %d     %s" % [
+				state.gifts_in_sack, state.goal, money]
+		WorkshopState.Phase.PRODUCTION:
+			sack_counter.text = "%s     %s     Saco: %d / %d     %s" % [
+				night, clock, state.gifts_in_sack, state.goal, money]
+		WorkshopState.Phase.DELIVERY:
+			var wanted := 0
+			for house in get_tree().get_nodes_in_group("house"):
+				wanted += house.wanted
+			sack_counter.text = "%s     %s     Reparto: %d / %d     Trineo: %d     %s" % [
+				night, clock, state.delivered, wanted, state.sleigh_gifts, money]
+		WorkshopState.Phase.RESULTS:
+			sack_counter.text = "%s terminada     Siguiente en %s     %s" % [night, clock, money]
+		WorkshopState.Phase.FINISHED:
+			sack_counter.text = "¡Nochebuena superada!     %s" % money
+	# Los resultados se cierran al empezar otra noche. Solo al cambiar de fase: el aviso de
+	# resultados (RPC) puede llegar antes que la fase nueva, y no hay que cerrarlo entonces.
+	if state.phase != _last_phase and state.phase in [WorkshopState.Phase.LOBBY, WorkshopState.Phase.PRODUCTION]:
+		results_panel.visible = false
+	_last_phase = state.phase
+
+
+## Resumen de la noche que manda el anfitrión al terminar el reparto.
+func show_results(r: Dictionary) -> void:
+	var verdict := "Algunos niños se han quedado sin regalo..."
+	if r["happy"] == r["houses"]:
+		verdict = "¡Noche perfecta!"
+	elif r["happy"] * 2 >= r["houses"]:
+		verdict = "¡Bien hecho!"
+	var lines := PackedStringArray([
+		"NOCHE %d TERMINADA" % r["night"],
+		verdict,
+		"",
+		"Regalos al saco: %d" % r["sacked"],
+		"Regalos entregados: %d / %d" % [r["delivered"], r["goal"]],
+		"Casas contentas: %d / %d" % [r["happy"], r["houses"]],
+		"Monedas ganadas: %d" % r["coins"],
+	])
+	if r["final"]:
+		lines[0] = "¡FELIZ NOCHEBUENA!"
+		lines.append("")
+		lines.append("Regalos repartidos en la partida: %d" % r["run_delivered"])
+		lines.append("Récord: %d" % r["record"])
+		lines.append("Pulsad SEGUIR JUGANDO o PARTIDA NUEVA en el taller")
+	results_label.text = "\n".join(lines)
+	results_panel.visible = true
 
 
 func _show_banner(text: String) -> void:

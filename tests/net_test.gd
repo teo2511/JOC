@@ -122,6 +122,8 @@ func _run_host() -> void:
 	host_player.velocity = Vector3.ZERO
 	await wait_seconds(0.2)
 	host_player.request_push_player(client_id)
+	if not game.pranks.is_immune(client_id):
+		print("    DEBUG empujón: anfitrión=", host_player.latest_position(), " cliente=", client_player.latest_position(), " puede=", game.pranks.can_push(1))
 	check(game.pranks.is_immune(client_id), "el anfitrión empuja al cliente")
 	await wait_seconds(Pranks.IMMUNITY_TIME + 0.8) # inmunidad y que el cliente se quede quieto
 	var target := client_player.latest_position() + Vector3.UP * 0.9
@@ -134,6 +136,8 @@ func _run_host() -> void:
 
 	# Reparto: se llena el saco, el cliente saca un regalo del trineo y lo suelta; el anfitrión
 	# lo lleva a la chimenea y luego completa las casas.
+	check(await wait_for(func(): return game.state.phase == WorkshopState.Phase.PRODUCTION), "el cliente pulsa EMPEZAR y empieza la noche 1")
+	check(game.state.goal == WorkshopState.goal_for(1, 2), "con 2 elfos la noche pide %d regalos" % game.state.goal)
 	while not game.state.is_complete():
 		game.state.server_add_gift()
 	check(await wait_for(func(): return game.state.delivering), "el saco lleno trae el trineo")
@@ -152,7 +156,10 @@ func _run_host() -> void:
 			var count: int = house.received
 			game.spawn_item(preload("res://scenes/items/gift_box.tscn"), house.get_node("Chimney/CollisionShape3D").global_position)
 			await wait_for(func(): return house.received > count, 2.0)
-	check(await wait_for(func(): return game.state.night == 2 and not game.state.delivering), "todas las casas servidas: empieza la noche 2")
+	check(await wait_for(func(): return game.state.phase == WorkshopState.Phase.RESULTS), "todas las casas servidas: resultados de la noche")
+	await wait_seconds(1.5) # deja que el cliente vea los resultados
+	game.state.server_skip_phase()
+	check(await wait_for(func(): return game.state.night == 2 and game.state.phase == WorkshopState.Phase.PRODUCTION), "empieza la noche 2")
 
 	check(await wait_for(func(): return Network.players.size() == 1, 20.0), "el cliente sale de la partida")
 	await wait_seconds(0.3)
@@ -251,6 +258,19 @@ func _run_client() -> void:
 	check(await wait_for(func(): return hits.has("snow")), "le llega una bola de nieve")
 	check(game.hud.frost.color.a > 0.3, "ve escarcha en la pantalla")
 
+	# Empezar la noche con el botón del taller.
+	var start_button = game.get_node("TestZone/StartButton")
+	me.global_position = start_button.global_position + Vector3(0, 0, 1.6)
+	me.velocity = Vector3.ZERO
+	me.rotation = Vector3.ZERO
+	me.head.rotation.x = deg_to_rad(-30)
+	await wait_seconds(0.3)
+	check(await wait_for(func(): return me.interaction._focused == start_button, 3.0), "mira el botón EMPEZAR")
+	me.interaction.interact()
+	# (el anfitrión llena el saco enseguida: puede que ya esté en el reparto)
+	check(await wait_for(func(): return game.state.phase != WorkshopState.Phase.LOBBY and not start_button.visible), "empieza la noche y el botón se va")
+	check(await wait_for(func(): return game.hud.sack_counter.text.contains("Noche 1/5")), "su pantalla muestra Noche 1/5 y el reloj")
+
 	# Reparto.
 	var sleigh = game.get_node("TestZone/Yard/Sleigh")
 	check(await wait_for(func(): return game.state.delivering and sleigh.visible), "ve llegar el trineo al patio")
@@ -260,14 +280,17 @@ func _run_client() -> void:
 	me.head.rotation.x = deg_to_rad(-25)
 	await wait_seconds(0.3)
 	check(await wait_for(func(): return me.interaction._focused == sleigh, 3.0), "mira el trineo")
+	if me.interaction._focused != sleigh:
+		print("    DEBUG foco=", me.interaction._focused, " yo=", me.global_position, " trineo visible=", sleigh.visible, " capa=", sleigh.collision_layer, " fase=", game.state.phase)
 	me.interaction.interact()
 	check(await wait_for(func(): return me.interaction.held != null and me.interaction.held.kind == "gift"), "recibe un regalo del trineo")
 	me.interaction.drop_held()
 	var house1 = game.get_node("TestZone/Yard/House1")
-	check(await wait_for(func(): return house1.received == 1 and house1.status_text == "1 / 3 regalos"), "ve la casa con 1 / 3 regalos")
-	check(await wait_for(func(): return game.hud.sack_counter.text.contains("Reparto: 1 / 10")), "su pantalla muestra Reparto: 1 / 10")
-	check(await wait_for(func(): return game.state.night == 2 and not sleigh.visible), "ve irse el trineo y empezar la noche 2")
-	check(await wait_for(func(): return game.hud.banner.text.contains("Reparto completado")), "ve el aviso de reparto completado")
+	check(await wait_for(func(): return house1.received == 1 and house1.status_text == "1 / 2 regalos"), "ve la casa con 1 / 2 regalos")
+	check(await wait_for(func(): return game.hud.sack_counter.text.contains("Reparto: 1 / 8")), "su pantalla muestra Reparto: 1 / 8")
+	check(await wait_for(func(): return game.hud.results_panel.visible and game.hud.results_label.text.contains("perfecta")), "ve los resultados: ¡Noche perfecta!")
+	check(not sleigh.visible, "el trineo se ha ido")
+	check(await wait_for(func(): return game.state.night == 2 and not game.hud.results_panel.visible), "ve empezar la noche 2")
 
 	await wait_seconds(0.5)
 	Network.leave()

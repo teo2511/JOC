@@ -132,6 +132,22 @@ unirse por invitación, `SteamMultiplayerPeer`). El resto del juego no sabe qué
 - La suma de `wanted` de las casas es igual al objetivo del saco (10). Si se cambia uno, hay que
   cambiar el otro (la Fase 9 lo hará automático por noche).
 
+## Ciclo de noches (Fase 9)
+
+- `WorkshopState.phase` (LOBBY, PRODUCTION, DELIVERY, RESULTS, FINISHED) y `seconds_left` se
+  sincronizan; el reloj real (`_time_left`) solo existe en el anfitrión, que lo baja en `_process` y
+  cambia de fase al llegar a cero. `seconds_left` cambia una vez por segundo, así que la red no se
+  satura.
+- `server_start_night()` fija `goal = goal_for(night, jugadores)`. Las casas calculan su parte con
+  `house_index` en todos los PCs, sin sincronizar nada más.
+- Al llenarse el saco solo empieza el reparto en PRODUCTION. En la espera el saco cuenta, pero no
+  trae el trineo.
+- `server_end_delivery()` arma un diccionario de resultados y lo envía por RPC (`results_ready`).
+  Ojo: ese RPC puede llegar a un cliente antes que el cambio de fase sincronizado, por eso el HUD
+  solo cierra los resultados al **cambiar** a LOBBY o PRODUCTION.
+- El récord se guarda en `user://records.cfg` del anfitrión (`record_path`; los tests usan otro
+  archivo).
+
 ## Tests
 
 `tests/run_tests.tscn` es una escena y no un script `-s` porque los scripts `-s` se compilan

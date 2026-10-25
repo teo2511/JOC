@@ -25,6 +25,7 @@ func _run() -> void:
 	await _test_pushes()
 	await _test_snowballs_and_lever()
 	await _test_delivery()
+	await _test_night_cycle()
 	print("\n%d pruebas correctas, %d fallos" % [_passes, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -449,10 +450,6 @@ func _test_delivery() -> void:
 	var sleigh = zone.get_node("TestZone/Yard/Sleigh")
 	var sack = zone.get_node("TestZone/Workshop/SantaSack")
 	var houses: Array = [1, 2, 3, 4].map(func(n): return zone.get_node("TestZone/Yard/House%d" % n))
-	var wanted := 0
-	for h in houses:
-		wanted += h.wanted
-	check(wanted == state.goal, "las casas piden tantos regalos como caben en el saco (%d)" % wanted)
 	check(not sleigh.visible, "el trineo no está hasta que se llena el saco")
 	var early := await _drop_in_chimney(zone, houses[0])
 	check(is_instance_valid(early) and not early.consumed and houses[0].received == 0, "antes del reparto la chimenea no acepta regalos")
@@ -460,6 +457,12 @@ func _test_delivery() -> void:
 
 	var banners: Array[String] = []
 	state.announced.connect(func(t): banners.append(t))
+	check(state.server_start_night(), "empieza la noche")
+	await _frames(1)
+	var wanted := 0
+	for h in houses:
+		wanted += h.wanted
+	check(wanted == state.goal, "las casas piden tantos regalos como pide la noche (%d)" % wanted)
 	for i in state.goal:
 		state.server_add_gift()
 	await _frames(2)
@@ -519,17 +522,104 @@ func _test_delivery() -> void:
 	check(is_instance_valid(extra) and not extra.consumed, "una casa servida escupe los regalos que sobran")
 	extra.queue_free()
 
-	var night_before := state.night
+	var results: Array[Dictionary] = []
+	state.results_ready.connect(func(r): results.append(r))
 	for h in houses:
 		for i in h.wanted - h.received:
 			await _drop_in_chimney(zone, h)
 	await _frames(2)
 	check(not state.delivering and not sleigh.visible, "con todas las casas servidas el trineo se va")
-	check(state.night == night_before + 1, "empieza la noche siguiente")
+	check(state.phase == WorkshopState.Phase.RESULTS and results.size() == 1, "salen los resultados de la noche")
+	check(results.size() == 1 and results[0]["happy"] == 4 and results[0]["delivered"] == state.goal, "resultados: 4 casas contentas y todo entregado")
+	check(zone.hud.results_panel.visible and zone.hud.results_label.text.contains("perfecta"), "la pantalla muestra «¡Noche perfecta!»")
 	check(houses.all(func(h): return h.received == 0), "las casas vuelven a pedir regalos")
-	# Del trineo solo salió un regalo: los otros 9 vuelven al saco.
+	# Del trineo solo salió un regalo: los otros vuelven al saco.
 	check(state.sleigh_gifts == 0 and state.gifts_in_sack == state.goal - 1, "lo que sobraba en el trineo vuelve al saco")
-	check(banners.any(func(t): return t.contains("Reparto completado")), "aviso: reparto completado")
+	await _unload(zone)
+
+
+func _test_night_cycle() -> void:
+	print("Ciclo de noches")
+	var zone := await _load_zone()
+	var me: Player = _player(zone)
+	var state: WorkshopState = zone.state
+	state.record_path = "user://test_records.cfg"
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(state.record_path))
+	var start = zone.get_node("TestZone/StartButton")
+	var restart = zone.get_node("TestZone/RestartButton")
+	check(WorkshopState.goal_for(1, 1) == 6 and WorkshopState.goal_for(5, 1) == 14, "un elfo: de 6 regalos la primera noche a 14 en Nochebuena")
+	check(WorkshopState.goal_for(1, 4) == 12, "con 4 elfos la primera noche pide 12")
+	check(WorkshopState.goal_for(6, 1) > WorkshopState.goal_for(5, 1), "en modo infinito sigue subiendo")
+	check(state.phase == WorkshopState.Phase.LOBBY and start.visible and not restart.visible, "se empieza esperando, con el botón EMPEZAR")
+	await _seconds(0.3)
+	check(state.seconds_left == 0, "en la espera no corre el reloj")
+	me.global_position = start.global_position + Vector3(0, 0, 1.5)
+	await _frames(2)
+	check(start.server_use(me), "el botón EMPEZAR responde a E")
+	check(state.phase == WorkshopState.Phase.PRODUCTION and state.goal == 6, "empieza la noche 1 (6 regalos)")
+	check(not start.visible, "el botón desaparece durante la noche")
+	check(state.seconds_left == int(WorkshopState.PRODUCTION_TIME), "reloj de producción: %d s" % state.seconds_left)
+	await _seconds(1.2)
+	check(state.seconds_left < int(WorkshopState.PRODUCTION_TIME), "el reloj baja")
+
+	# Se acaba el tiempo con el saco a medias: el trineo se lleva lo que hay.
+	state.server_add_gift()
+	state.server_add_gift()
+	state.server_skip_phase()
+	await _frames(2)
+	check(state.phase == WorkshopState.Phase.DELIVERY and state.sleigh_gifts == 2, "sin tiempo, el trineo se lleva lo que hay (2)")
+	check(state.seconds_left == int(WorkshopState.DELIVERY_TIME), "reloj de reparto: %d s" % state.seconds_left)
+	var results: Array[Dictionary] = []
+	state.results_ready.connect(func(r): results.append(r))
+	state.server_skip_phase()
+	await _frames(2)
+	check(state.phase == WorkshopState.Phase.RESULTS and results.size() == 1, "sin tiempo de reparto, salen los resultados")
+	check(results[0]["happy"] == 0 and results[0]["sacked"] == 2, "resultados: 2 al saco, ninguna casa contenta")
+	check(zone.hud.results_label.text.contains("sin regalo"), "la pantalla lo dice")
+	check(state.gifts_in_sack == 2, "los regalos no repartidos vuelven al saco")
+	state.server_skip_phase()
+	await _frames(2)
+	check(state.night == 2 and state.phase == WorkshopState.Phase.PRODUCTION and state.goal == 8, "tras los resultados empieza la noche 2 (8 regalos)")
+	check(not zone.hud.results_panel.visible, "los resultados se cierran")
+
+	# Llenar el saco antes de tiempo da monedas extra.
+	var money_before := state.money
+	for i in state.goal - state.gifts_in_sack:
+		state.server_add_gift()
+	await _frames(2)
+	var bonus := state.money - money_before - (8 - 2) * WorkshopState.GIFT_VALUE
+	check(state.phase == WorkshopState.Phase.DELIVERY and bonus > 0, "acabar antes da monedas extra (%d)" % bonus)
+
+	# Pasar por las noches que faltan hasta Nochebuena.
+	while state.phase != WorkshopState.Phase.FINISHED:
+		state.server_skip_phase()
+		await _frames(2)
+	check(state.night == WorkshopState.NIGHTS, "la partida acaba tras la noche %d" % WorkshopState.NIGHTS)
+	check(results[-1]["final"] and results[-1]["record"] == results[-1]["run_delivered"], "el final enseña el récord")
+	check(FileAccess.file_exists(state.record_path), "el récord se guarda en el PC del anfitrión")
+	check(start.visible and restart.visible, "aparecen SEGUIR JUGANDO y PARTIDA NUEVA")
+	check(zone.hud.results_label.text.contains("NOCHEBUENA"), "pantalla final de Nochebuena")
+
+	await _seconds(1.1) # espera del botón
+	check(start.server_use(me) and state.phase == WorkshopState.Phase.PRODUCTION and state.night == 6, "SEGUIR JUGANDO empieza la noche 6")
+	check(state.endless and state.goal == WorkshopState.goal_for(6, 1), "modo infinito, con más regalos")
+	while state.phase != WorkshopState.Phase.RESULTS:
+		state.server_skip_phase()
+		await _frames(2)
+	state.server_skip_phase()
+	await _frames(2)
+	check(state.night == 7 and state.phase == WorkshopState.Phase.PRODUCTION, "en modo infinito no se acaba")
+
+	# Partida nueva.
+	state.phase = WorkshopState.Phase.FINISHED
+	state.money = 300
+	state.server_buy(Upgrades.FAST_BOOTS)
+	await _frames(1)
+	me.global_position = restart.global_position + Vector3(0, 0, 1.5)
+	await _frames(2)
+	check(restart.server_use(me), "el botón PARTIDA NUEVA responde a E")
+	check(state.phase == WorkshopState.Phase.LOBBY and state.night == 1 and state.money == 0 and state.level(Upgrades.FAST_BOOTS) == 0, "partida nueva: noche 1, sin dinero ni mejoras")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(state.record_path))
 	await _unload(zone)
 
 

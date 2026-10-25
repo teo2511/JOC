@@ -34,6 +34,15 @@ properties/7/replication_mode = 2
 properties/8/path = NodePath(".:delivered")
 properties/8/spawn = true
 properties/8/replication_mode = 2
+properties/9/path = NodePath(".:phase")
+properties/9/spawn = true
+properties/9/replication_mode = 2
+properties/10/path = NodePath(".:seconds_left")
+properties/10/spawn = true
+properties/10/replication_mode = 2
+properties/11/path = NodePath(".:endless")
+properties/11/spawn = true
+properties/11/replication_mode = 2
 
 [node name="Game" type="Node3D"]
 script = ExtResource("1_game")

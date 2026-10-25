@@ -61,16 +61,11 @@ func spawn_item(scene: PackedScene, global_pos: Vector3, velocity := Vector3.ZER
 	return item
 
 
-## Lo llama cada casa al recibir un regalo: si todas tienen los suyos, termina la noche.
+## Lo llama cada casa al recibir un regalo: si todas tienen los suyos, termina el reparto.
 func server_check_delivery() -> void:
 	var houses := get_tree().get_nodes_in_group("house")
-	if not state.delivering or houses.is_empty() or not houses.all(func(h): return h.is_satisfied()):
-		return
-	for h in houses:
-		h.server_reset()
-	state.server_finish_night()
-	if state.is_complete(): # sobraban regalos suficientes para otra noche
-		state.server_start_delivery()
+	if state.delivering and not houses.is_empty() and houses.all(func(h): return h.is_satisfied()):
+		state.server_end_delivery()
 
 
 func _on_player_registered(id: int) -> void:

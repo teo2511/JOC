@@ -100,6 +100,35 @@ a ver el estado "1 / 3". El test espera ahora 1,5 s; el juego no cambia.)
 
 Capturas `patio` y `chimenea`.
 
+### Resultado del 25-oct-2026, Fase 9
+
+`tests/run_tests.tscn`: **148 correctas, 0 fallos**. Nuevas: objetivos por noche y por número de
+elfos, se empieza esperando sin reloj, el botón EMPEZAR arranca la noche 1 y desaparece, el reloj
+baja, sin tiempo el trineo se lleva lo que hay, sin tiempo de reparto salen los resultados (y lo
+dicen), lo no repartido vuelve al saco, tras los resultados empieza la noche 2 y se cierran,
+acabar antes da monedas, la partida acaba tras la noche 5 con récord guardado y pantalla de
+Nochebuena, SEGUIR JUGANDO pasa a la noche 6 en modo infinito, PARTIDA NUEVA lo pone todo a cero.
+
+`tools/run_net_test.sh`: **anfitrión 35/35, cliente 45/45, 6 veces seguidas** con el código final.
+Nuevas: el cliente pulsa EMPEZAR, el anfitrión ve empezar la noche 1 con 8 regalos (2 elfos), el
+cliente ve "Noche 1/5", la casa con "1 / 2", "Reparto: 1 / 8", los resultados "¡Noche perfecta!"
+y luego la noche 2.
+
+Antes de esas 6 pasadas hubo fallos que se corrigieron: el HUD del cliente cerraba los resultados
+porque el aviso llegaba antes que el cambio de fase (fallo real del juego, corregido), y dos
+comprobaciones del test daban por hecho un orden de llegada (corregidas). En las 2 primeras
+pasadas también fallaron una vez la compra de la cinta y otra un empujón, que no se han vuelto a
+repetir. El test imprime ahora datos extra ("DEBUG") si vuelven a fallar.
+
+Capturas `empezar` y `resultados`.
+
+## Pruebas manuales: Fase 9 (pendiente, las hace teo con amigos)
+
+1. Al entrar todos, pulsad EMPEZAR: arriba sale "Noche 1/5" y el reloj.
+2. Jugad una noche entera: ¿llegáis a llenar el saco en 6 minutos? ¿Sobra o falta tiempo?
+3. Repartid y mirad los resultados. ¿Se entienden?
+4. Para probar el final sin jugar 40 minutos, decídmelo y os preparo un modo rápido.
+
 ## Pruebas manuales: Fase 8 (pendiente, las hace teo con amigos)
 
 1. Llenad el saco (10 regalos): aviso y el trineo aparece en el patio (puerta de la pared derecha).

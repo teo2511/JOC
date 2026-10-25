@@ -6,6 +6,7 @@ extends Node
 
 const VIEWS := [
 	{"name": "inicio", "pos": Vector3(0, 0.1, 3), "yaw": 0.0, "pitch": -10.0},
+	{"name": "empezar", "pos": Vector3(4.5, 0.1, 3.5), "yaw": 15.0, "pitch": -12.0},
 	{"name": "mesa_regalos", "pos": Vector3(-3, 0.1, -1.5), "yaw": 0.0, "pitch": -25.0},
 	{"name": "boton", "pos": Vector3(-6, 0.1, -8.4), "yaw": 0.0, "pitch": -30.0},
 	{"name": "otro_elfo", "pos": Vector3(0, 0.1, 6), "yaw": 0.0, "pitch": -5.0},
@@ -15,6 +16,7 @@ const VIEWS := [
 	{"name": "nieve", "pos": Vector3(7, 0.1, 7.5), "yaw": 180.0, "pitch": -12.0, "snow": true},
 	{"name": "patio", "pos": Vector3(16, 0.1, 0), "yaw": -90.0, "pitch": -2.0, "delivery": true},
 	{"name": "chimenea", "pos": Vector3(28, 0.1, -3.5), "yaw": 20.0, "pitch": 22.0, "delivery": true},
+	{"name": "resultados", "pos": Vector3(0, 0.1, 3), "yaw": 0.0, "pitch": -10.0, "results": true},
 ]
 
 
@@ -39,12 +41,17 @@ func _ready() -> void:
 				zone.state.server_buy(i, "Teo")
 			zone.state.server_add_gift()
 		if view.get("delivery", false) and not zone.state.delivering:
+			zone.state.server_start_night()
 			while not zone.state.is_complete():
 				zone.state.server_add_gift()
-			zone.state.server_start_delivery()
 			var house: Node = zone.get_node("TestZone/Yard/House2")
 			house.received = house.wanted
 			other.sync_position = Vector3(22, 0.1, 2)
+		if view.get("results", false):
+			var house: Node = zone.get_node("TestZone/Yard/House1")
+			house.received = house.wanted
+			zone.state.delivered = 4
+			zone.state.server_end_delivery()
 		if view.get("snow", false):
 			other.sync_position = Vector3(5.2, 0.1, 10.5)
 			for i in 3:

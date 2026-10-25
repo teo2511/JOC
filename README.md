@@ -6,7 +6,7 @@ mejoráis el taller y repartís los regalos, mientras os empujáis y os robáis 
 
 - Motor: **Godot 4.6** (versión estándar, no .NET). Lenguaje: **GDScript**.
 - Plataforma: Windows primero, publicación prevista en Steam.
-- Estado: **Fase 8**, cadena de producción con mejoras, bromas entre elfos y reparto de regalos por las chimeneas del patio. Ver [TASKS.md](TASKS.md).
+- Estado: **Fase 9**, partida completa: 5 noches de producción y reparto hasta Nochebuena, con resultados, récord y modo infinito. Ver [TASKS.md](TASKS.md).
 
 ## Cómo abrirlo
 
@@ -30,11 +30,21 @@ mejoráis el taller y repartís los regalos, mientras os empujáis y os robáis 
 
 ## Cómo se juega (de momento)
 
+**La partida:** son 5 noches hasta Nochebuena. Al entrar, cuando estéis todos, pulsad el botón
+verde **EMPEZAR** del taller. Cada noche tiene dos partes:
+- **Producción (6 min):** llenad el saco con los regalos que pide la noche (6 la primera noche con
+  un elfo, 2 más por cada elfo extra y 2 más cada noche). Si lo llenáis antes, el reparto empieza
+  ya y el tiempo que sobra da monedas.
+- **Reparto (2 min):** llevad los regalos del trineo a las chimeneas.
+Después salen los **resultados** de la noche (15 s) y empieza la siguiente. Tras Nochebuena podéis
+**SEGUIR JUGANDO** (noches cada vez más difíciles) o empezar una **PARTIDA NUEVA**. El anfitrión
+guarda el récord de regalos repartidos.
+
 1. **Madera:** mira la caja marrón y pulsa E. Te da un bloque de madera en las manos.
 2. **Fábrica de juguetes:** echa la madera por el embudo de arriba (lánzala o suéltala encima).
    En 3 segundos sale un coche de juguete por la rampa. Caben 3 bloques en cola.
 3. **Mesa de envolver:** deja el juguete encima y pulsa E tres veces mirando la mesa.
-4. **Saco de Santa:** echa el regalo dentro. Con 10 regalos el saco está lleno y llega el trineo.
+4. **Saco de Santa:** echa el regalo dentro. Cuando está lleno, llega el trineo.
    Si echas algo que no es un regalo, el saco lo escupe.
 5. **Monedas y mejoras:** cada regalo da 10 monedas al equipo. En el **tablón de mejoras** (pared
    izquierda) mira un botón y pulsa E para comprar con el dinero común. Botón verde = te llega,
@@ -50,10 +60,10 @@ mejoráis el taller y repartís los regalos, mientras os empujáis y os robáis 
    - Clic derecho mirando un objeto suelto le da un empujón.
 7. **Reparto:** con el saco lleno, el trineo de Santa aparece en el **patio** (sal por la puerta
    de la pared derecha del taller). Mira el trineo y pulsa E para coger un regalo. Lánzalo por la
-   **chimenea** de una casita (apunta bastante hacia arriba). Cada casa pide 2 o 3 regalos y da las
-   gracias encendiendo las ventanas. Cada regalo entregado da 5 monedas más. Cuando todas las casas
-   tienen los suyos, el trineo se va y empieza la noche siguiente. Los regalos del trineo no se
-   pueden volver a meter en el saco.
+   **chimenea** de una casita (apunta bastante hacia arriba). Entre las 4 casas piden los regalos
+   de la noche, y cada una da las gracias encendiendo las ventanas. Cada regalo entregado da 5
+   monedas más. Cuando todas las casas tienen los suyos (o se acaba el tiempo), salen los
+   resultados. Los regalos del trineo no se pueden volver a meter en el saco.
 
 ## Controles
 
