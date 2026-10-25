@@ -88,6 +88,19 @@ unirse por invitación, `SteamMultiplayerPeer`). El resto del juego no sabe qué
   anfitrión. HUD y saco escuchan su señal `changed`.
 - `Game.spawn_item()` crea objetos en el nodo que vigila el `ItemSpawner`.
 
+## Progresión (Fase 6)
+
+- `Upgrades` (scripts/game/upgrades.gd) es solo datos: nombre, precios por nivel y efecto.
+- `WorkshopState` guarda `money`, `total_earned` y `upgrade_levels` (PackedInt32Array, se
+  reasigna entera al cambiar para que el synchronizer lo detecte). `server_buy()` es la única
+  forma de gastar dinero; anuncia la compra a todos con un RPC.
+- Cada sistema aplica sus mejoras al cambiar el estado (`Station.on_state_changed`): la fábrica
+  recalcula tiempo, cola y color; la mesa activa el modo automático; la cinta se muestra y activa
+  su colisión; `Game` ajusta `speed_multiplier` de los elfos.
+- La cinta empuja en el anfitrión los objetos libres que tiene encima y, al final, los coloca
+  sobre la mesa (marcador `Workshop/TableDrop`). Con cinta, la fábrica escupe más despacio para
+  que el juguete caiga encima.
+
 ## Tests
 
 `tests/run_tests.tscn` es una escena y no un script `-s` porque los scripts `-s` se compilan

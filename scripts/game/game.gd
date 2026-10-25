@@ -10,6 +10,7 @@ extends Node3D
 
 const PLAYER_SCENE := preload("res://scenes/player/player.tscn")
 const SPAWN_ORIGIN := Vector3(0, 0.1, 3)
+const BOOTS_PER_LEVEL := 0.15
 
 @onready var players_root: Node3D = $Players
 @onready var player_spawner: MultiplayerSpawner = $PlayerSpawner
@@ -21,6 +22,7 @@ const SPAWN_ORIGIN := Vector3(0, 0.1, 3)
 func _ready() -> void:
 	add_to_group("game")
 	player_spawner.spawn_function = _spawn_player
+	state.changed.connect(_apply_player_upgrades)
 	_take_over_placed_items()
 	if multiplayer.is_server():
 		Network.player_registered.connect(_on_player_registered)
@@ -85,6 +87,16 @@ func _spawn_player(data: Dictionary) -> Node:
 	p.elf_color = Network.ELF_COLORS[color_index % Network.ELF_COLORS.size()]
 	p.position = SPAWN_ORIGIN + Vector3(color_index * 1.2 - 1.8, 0, 0)
 	p.set_multiplayer_authority(id)
+	p.speed_multiplier = _boots_multiplier()
 	if id == multiplayer.get_unique_id():
 		hud.set_player.call_deferred(p)
 	return p
+
+
+func _boots_multiplier() -> float:
+	return 1.0 + BOOTS_PER_LEVEL * state.level(Upgrades.FAST_BOOTS)
+
+
+func _apply_player_upgrades() -> void:
+	for p in get_tree().get_nodes_in_group("player"):
+		p.speed_multiplier = _boots_multiplier()

@@ -25,6 +25,20 @@ func _ready() -> void:
 	super()
 	_label = get_node_or_null("Label") as Label3D
 	_update_label()
+	_connect_state.call_deferred() # la partida (Game) termina de prepararse después
+
+
+func _connect_state() -> void:
+	var g := game()
+	if g == null:
+		return
+	g.state.changed.connect(func(): on_state_changed(g.state))
+	on_state_changed(g.state)
+
+
+## Para las estaciones: se llama al cambiar el estado del taller (dinero, mejoras, saco).
+func on_state_changed(_state: WorkshopState) -> void:
+	pass
 
 
 func _physics_process(delta: float) -> void:

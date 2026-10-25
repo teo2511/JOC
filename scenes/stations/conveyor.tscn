@@ -1,0 +1,65 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/stations/conveyor.gd" id="1_conv"]
+
+[sub_resource type="BoxShape3D" id="Shape_belt"]
+size = Vector3(4.6, 0.3, 0.8)
+
+[sub_resource type="StandardMaterial3D" id="Mat_belt"]
+albedo_color = Color(0.25, 0.25, 0.28, 1)
+uv1_scale = Vector3(6, 1, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="Mesh_belt"]
+material = SubResource("Mat_belt")
+size = Vector3(4.6, 0.3, 0.8)
+
+[sub_resource type="StandardMaterial3D" id="Mat_rail"]
+albedo_color = Color(0.95, 0.75, 0.15, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_rail"]
+material = SubResource("Mat_rail")
+size = Vector3(4.6, 0.12, 0.06)
+
+[sub_resource type="BoxShape3D" id="Shape_zone"]
+size = Vector3(4.4, 0.6, 0.8)
+
+[sub_resource type="BoxShape3D" id="Shape_end"]
+size = Vector3(0.4, 0.8, 0.8)
+
+[node name="Conveyor" type="Node3D"]
+script = ExtResource("1_conv")
+
+[node name="Belt" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Belt"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
+shape = SubResource("Shape_belt")
+
+[node name="Mesh" type="MeshInstance3D" parent="Belt"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
+mesh = SubResource("Mesh_belt")
+
+[node name="RailA" type="MeshInstance3D" parent="Belt"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.36, 0.42)
+mesh = SubResource("Mesh_rail")
+
+[node name="RailB" type="MeshInstance3D" parent="Belt"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.36, -0.42)
+mesh = SubResource("Mesh_rail")
+
+[node name="CarryZone" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CarryZone"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+shape = SubResource("Shape_zone")
+
+[node name="EndZone" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EndZone"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 0.6, 0)
+shape = SubResource("Shape_end")

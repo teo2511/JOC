@@ -1,0 +1,43 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/stations/upgrade_button.gd" id="1_up"]
+
+[sub_resource type="BoxShape3D" id="Shape_base"]
+size = Vector3(0.7, 1.0, 0.7)
+
+[sub_resource type="StandardMaterial3D" id="Mat_base"]
+albedo_color = Color(0.35, 0.22, 0.12, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_base"]
+material = SubResource("Mat_base")
+size = Vector3(0.7, 1.0, 0.7)
+
+[sub_resource type="CylinderMesh" id="Mesh_cap"]
+top_radius = 0.22
+bottom_radius = 0.24
+height = 0.12
+
+[node name="UpgradeButton" type="StaticBody3D"]
+script = ExtResource("1_up")
+cooldown = 0.6
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("Shape_base")
+
+[node name="Base" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("Mesh_base")
+
+[node name="Cap" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.06, 0)
+mesh = SubResource("Mesh_cap")
+
+[node name="Label" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.75, 0)
+billboard = 1
+outline_size = 8
+font_size = 32
+pixel_size = 0.0045
+autowrap_mode = 3
+width = 420.0

@@ -55,7 +55,27 @@ cuenta dos veces, el saco escupe lo que no es regalo, el objetivo se completa al
 saca madera de la caja y la recibe en las manos, ve la fábrica trabajando, ve el saco con 1 regalo
 y su pantalla muestra "Saco: 1 / 10".
 
-## Pruebas manuales: Fase 5 (pendiente, las hace teo)
+### Resultado del 25-oct-2026, Fase 6
+
+`tests/run_tests.tscn`: **73 correctas, 0 fallos**. Nuevas: dinero por regalo, no se compra sin
+dinero, se descuenta el precio, el precio sube, máximo de nivel sin cobro, efecto de cada mejora,
+el botón del tablón compra, la cinta aparece al comprarla y lleva un juguete real de la fábrica a
+la mesa, la mesa automática envuelve sin pulsar.
+
+`tools/run_net_test.sh`, 4 veces seguidas: **anfitrión 20/20, cliente 27/27**. Nuevas: el regalo da
+monedas al equipo, el cliente ve el dinero, compra la cinta desde el tablón, se descuenta del dinero
+común, ve aparecer la cinta y el aviso con su nombre.
+
+## Pruebas manuales: Fase 6 (pendiente, las hace teo)
+
+1. Mete un par de regalos en el saco: arriba suben las monedas.
+2. Ve al tablón (pared izquierda) y compra "Fábrica rápida": aviso en pantalla, la fábrica se
+   vuelve más dorada y tarda menos.
+3. Compra la cinta: aparece entre la fábrica y la mesa y lleva los coches a la mesa sola.
+4. Compra la envolvedora: la mesa envuelve sin pulsar E.
+5. Con amigos: ¿se nota la progresión en una partida normal? ¿Los precios son muy caros o baratos?
+
+## Pruebas manuales: Fase 5 (hechas por teo el 25-oct: "sí que se entiende")
 
 1. Coge madera de la caja marrón (E) y échala por el embudo de la fábrica azul.
 2. Espera el coche rojo, ponlo en la mesa roja y pulsa E tres veces mirando la mesa.

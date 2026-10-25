@@ -20,6 +20,8 @@ func _run() -> void:
 	await _test_respawn_on_fall()
 	await _test_production_chain()
 	await _test_sack_rules()
+	await _test_money_and_upgrades()
+	await _test_automation()
 	print("\n%d pruebas correctas, %d fallos" % [_passes, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -256,4 +258,74 @@ func _test_sack_rules() -> void:
 	check(not reached[0], "1/2 aún no completa el objetivo")
 	state.server_add_gift()
 	check(reached[0] and state.is_complete(), "2/2 completa el objetivo")
+	await _unload(zone)
+
+
+func _test_money_and_upgrades() -> void:
+	print("Dinero y mejoras")
+	var zone := await _load_zone()
+	var player: Player = _player(zone)
+	var state: WorkshopState = zone.state
+	var machine = zone.get_node("TestZone/Workshop/ToyMachine")
+	check(state.money == 0, "se empieza sin dinero")
+	state.server_add_gift()
+	check(state.money == WorkshopState.GIFT_VALUE, "cada regalo da %d monedas" % WorkshopState.GIFT_VALUE)
+	check(not state.server_buy(Upgrades.FAST_MACHINE), "sin dinero suficiente no se compra")
+	check(state.level(Upgrades.FAST_MACHINE) == 0, "la mejora sigue a nivel 0")
+
+	state.money = 1000
+	var first := state.next_price(Upgrades.FAST_MACHINE)
+	var bought := [""]
+	state.upgrade_bought.connect(func(i, who): bought[0] = "%d:%s" % [i, who])
+	check(state.server_buy(Upgrades.FAST_MACHINE, "Teo"), "con dinero se compra")
+	await _frames(1)
+	check(state.money == 1000 - first, "se descuenta el precio")
+	check(state.next_price(Upgrades.FAST_MACHINE) > first, "el siguiente nivel es más caro")
+	check(bought[0] == "%d:Teo" % Upgrades.FAST_MACHINE, "se anuncia quién ha comprado qué")
+	check(absf(machine.craft_time - machine.base_craft_time * 0.75) < 0.001, "la fábrica es un 25%% más rápida (%.2f s)" % machine.craft_time)
+	state.server_buy(Upgrades.FAST_MACHINE)
+	state.server_buy(Upgrades.FAST_MACHINE)
+	check(state.level(Upgrades.FAST_MACHINE) == 3, "se puede subir hasta el nivel 3")
+	var money_before := state.money
+	check(not state.server_buy(Upgrades.FAST_MACHINE), "no se puede pasar del máximo")
+	check(state.money == money_before, "al máximo no se cobra nada")
+
+	state.server_buy(Upgrades.BIG_MACHINE)
+	check(machine.capacity == machine.base_capacity + 2, "la fábrica grande admite 2 bloques más")
+	state.server_buy(Upgrades.FAST_BOOTS)
+	check(absf(player.speed_multiplier - 1.15) < 0.001, "las botas hacen al elfo un 15% más rápido")
+
+	var button = zone.get_node("TestZone/UpgradeBoard/Upgrade%d" % Upgrades.CONVEYOR)
+	player.global_position = button.global_position + Vector3(1.5, 0, 0)
+	await _frames(2)
+	button.request_use()
+	await _frames(1)
+	check(state.level(Upgrades.CONVEYOR) == 1, "el botón del tablón compra la mejora")
+	await _unload(zone)
+
+
+func _test_automation() -> void:
+	print("Automatización")
+	var zone := await _load_zone()
+	var state: WorkshopState = zone.state
+	var conveyor = zone.get_node("TestZone/Workshop/Conveyor")
+	var table = zone.get_node("TestZone/Workshop/WrapTable")
+	var machine = zone.get_node("TestZone/Workshop/ToyMachine")
+	check(not conveyor.visible and not conveyor.active, "la cinta está oculta hasta comprarla")
+	state.money = 1000
+	state.server_buy(Upgrades.CONVEYOR)
+	await _frames(1)
+	check(conveyor.visible and conveyor.active, "al comprarla aparece la cinta")
+
+	# Un bloque en la fábrica: el juguete debe acabar solo en la mesa.
+	zone.spawn_item(preload("res://scenes/items/wood_block.tscn"), machine.global_position + Vector3(0, 1.8, 0))
+	await _seconds(machine.craft_time + 4.5)
+	check(table.has_toy, "la cinta lleva el juguete de la fábrica a la mesa")
+
+	state.server_buy(Upgrades.AUTO_WRAP)
+	await _frames(1)
+	check(table.auto_wrap, "la mesa pasa a ser automática")
+	var gifts_before := _items_of_kind("gift").size()
+	await _seconds(table.auto_wrap_time + 0.5)
+	check(_items_of_kind("gift").size() == gifts_before + 1, "la mesa envuelve sola, sin pulsar nada")
 	await _unload(zone)

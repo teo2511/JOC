@@ -7,6 +7,8 @@
 [ext_resource type="PackedScene" path="res://scenes/stations/toy_machine.tscn" id="7_machine"]
 [ext_resource type="PackedScene" path="res://scenes/stations/wrap_table.tscn" id="8_table"]
 [ext_resource type="PackedScene" path="res://scenes/stations/santa_sack.tscn" id="9_sack"]
+[ext_resource type="PackedScene" path="res://scenes/stations/conveyor.tscn" id="10_conveyor"]
+[ext_resource type="PackedScene" path="res://scenes/stations/upgrade_button.tscn" id="11_upgrade"]
 
 [sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]
 sky_top_color = Color(0.32, 0.45, 0.72, 1)
@@ -199,3 +201,39 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -12.5)
 
 [node name="SantaSack" parent="Workshop" instance=ExtResource("9_sack")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0, -12.5)
+
+[node name="TableDrop" type="Marker3D" parent="Workshop"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.15, -12.5)
+
+[node name="Conveyor" parent="Workshop" node_paths=PackedStringArray("drop_target") instance=ExtResource("10_conveyor")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 0, -11.1)
+drop_target = NodePath("../TableDrop")
+
+[node name="UpgradeBoard" type="Node3D" parent="."]
+
+[node name="Title" type="Label3D" parent="UpgradeBoard"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -14.6, 2.9, -5.8)
+outline_size = 12
+font_size = 64
+pixel_size = 0.008
+text = "TABLÓN DE MEJORAS"
+
+[node name="Upgrade0" parent="UpgradeBoard" instance=ExtResource("11_upgrade")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.8, 0, -10.6)
+upgrade_index = 0
+
+[node name="Upgrade1" parent="UpgradeBoard" instance=ExtResource("11_upgrade")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.8, 0, -8.2)
+upgrade_index = 1
+
+[node name="Upgrade2" parent="UpgradeBoard" instance=ExtResource("11_upgrade")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.8, 0, -5.8)
+upgrade_index = 2
+
+[node name="Upgrade3" parent="UpgradeBoard" instance=ExtResource("11_upgrade")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.8, 0, -3.4)
+upgrade_index = 3
+
+[node name="Upgrade4" parent="UpgradeBoard" instance=ExtResource("11_upgrade")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.8, 0, -1.0)
+upgrade_index = 4

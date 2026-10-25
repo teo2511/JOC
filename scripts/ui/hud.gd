@@ -36,6 +36,8 @@ func _ready() -> void:
 	if state:
 		state.changed.connect(_update_sack.bind(state))
 		state.goal_reached.connect(_show_banner.bind("¡Saco lleno! Noche completada"))
+		state.upgrade_bought.connect(func(index, buyer):
+			_show_banner("¡%s ha comprado %s!" % [buyer, Upgrades.LIST[index]["name"]]))
 		_update_sack(state)
 
 
@@ -77,7 +79,7 @@ func _on_leave_pressed() -> void:
 
 
 func _update_sack(state: WorkshopState) -> void:
-	sack_counter.text = "Saco: %d / %d" % [state.gifts_in_sack, state.goal]
+	sack_counter.text = "Saco: %d / %d     Monedas: %d" % [state.gifts_in_sack, state.goal, state.money]
 
 
 func _show_banner(text: String) -> void:
