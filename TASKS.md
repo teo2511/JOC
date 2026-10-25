@@ -99,6 +99,20 @@ Estados: **Hecho** (implementado y probado), **Implementado** (falta probarlo a 
 - [x] Si se acaba el tiempo de producción, el trineo se lleva lo que haya. Llenar antes da 1 moneda por cada 5 s sobrantes. **Hecho** (tests)
 - [x] Pantalla de resultados de cada noche y final de Nochebuena con récord (guardado en el PC del anfitrión). **Hecho** (tests, red y captura)
 - [x] Reloj y fase en el HUD. **Hecho** (red y captura)
-- [ ] El botón de regalos gratis de la zona de pruebas sigue ahí y hace trampa: quitarlo cuando el mapa de pruebas pase a ser el taller de verdad (Fase 10). **Pendiente**
+- [x] El botón de regalos gratis de la zona de pruebas hacía trampa. **Quitado en la Fase 10**
 - [ ] Equilibrar tiempos, objetivos y monedas extra tras jugar (la prima por acabar antes puede ser demasiado alta). **Pendiente**
-- [ ] Si alguien entra a mitad de partida no ve los resultados de la noche que se está mostrando. **Pendiente** (menor)
+- [x] Si alguien entra a mitad de partida no veía los resultados. **Hecho en la Fase 10**
+
+## Fase 10. Pulido
+
+- [x] 19 efectos de sonido propios generados por código (`tools/generate_sounds.py`), autoload `Sfx` con sonido 3D y `broadcast` desde el anfitrión. **Hecho** (tests; **falta que teo los escuche**: desde aquí no se pueden oír)
+- [x] Coger, lanzar, soltar, fábrica, envolver, saco, monedas, escupir, empujón, nieve, chimenea, casa servida, trineo, inicio de noche, resultados y tic-tac de los últimos 10 s. **Hecho**
+- [x] Ambiente de noche: cielo oscuro, luna, faroles cálidos, guirnaldas de luces que parpadean, dos árboles de Navidad y nieve cayendo. **Hecho** (capturas)
+- [x] Quitado el botón de regalos gratis. **Hecho**
+- [x] Flecha en pantalla hacia el trineo durante el reparto. **Hecho** (tests y captura)
+- [x] Animaciones: el que empuja se lanza, el que recibe se aplasta, el trineo llega volando. **Hecho** (tests)
+- [x] Quien entra durante los resultados los pide al anfitrión. **Hecho** (red)
+- [ ] Música de fondo navideña (propia o CC0). **Pendiente**
+- [ ] Modelos más bonitos (elfos, máquinas) con recursos CC0 tipo Kenney o Quaternius. **Pendiente**, valorar con teo
+- [ ] Medir rendimiento en el PC de teo (FPS) con 4 jugadores. **Pendiente**
+- [ ] Ajustar volúmenes de cada sonido cuando teo los oiga. **Pendiente**

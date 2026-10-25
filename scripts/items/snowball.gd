@@ -36,5 +36,7 @@ func _on_body_entered(body: Node) -> void:
 		dir.y = 0
 		var game := get_tree().get_first_node_in_group("game") as Game
 		game.pranks.server_hit(body.peer_id, dir.normalized() * HIT_FORCE + Vector3.UP * 1.5, "snow")
+	else:
+		Sfx.broadcast("snow", global_position)
 	_armed = false
 	server_consume()

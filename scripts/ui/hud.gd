@@ -13,8 +13,12 @@ var player: Player
 @onready var frost: ColorRect = %Frost
 @onready var results_panel: PanelContainer = %ResultsPanel
 @onready var results_label: Label = %Results
+@onready var sleigh_hint: Control = %SleighHint
+@onready var sleigh_arrow: Label = %SleighArrow
 
 var _last_phase := -1
+var _last_seconds := -1
+var _asked_results := false
 @onready var pause_menu: Control = %PauseMenu
 @onready var sensitivity_slider: HSlider = %SensitivitySlider
 @onready var sensitivity_value: Label = %SensitivityValue
@@ -58,6 +62,26 @@ func _on_hit(kind: String) -> void:
 	frost.color = Color(0.92, 0.97, 1.0, 0.75) if kind == "snow" else Color(1, 0.85, 0.7, 0.25)
 	var tween := create_tween()
 	tween.tween_property(frost, "color:a", 0.0, 1.2 if kind == "snow" else 0.3)
+
+
+func _process(_delta: float) -> void:
+	_update_sleigh_hint()
+
+
+## Durante el reparto, si estás lejos del trineo, una flecha te indica hacia dónde está.
+func _update_sleigh_hint() -> void:
+	var game := get_parent() as Game
+	var sleigh := game.get_node_or_null("TestZone/Yard/Sleigh") as Node3D if game else null
+	var show := player != null and sleigh != null and is_instance_valid(player) and game.state.delivering \
+			and player.global_position.distance_to(sleigh.global_position) > 8.0
+	sleigh_hint.visible = show
+	if not show:
+		return
+	var to := sleigh.global_position - player.global_position
+	var local := player.global_basis.inverse() * to
+	# 0 = delante; el texto "↑" apunta hacia arriba en la pantalla, que es "hacia delante".
+	sleigh_arrow.rotation = atan2(local.x, -local.z)
+	sleigh_arrow.pivot_offset = sleigh_arrow.size / 2
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -118,6 +142,18 @@ func _update_sack(state: WorkshopState) -> void:
 	if state.phase != _last_phase and state.phase in [WorkshopState.Phase.LOBBY, WorkshopState.Phase.PRODUCTION]:
 		results_panel.visible = false
 	_last_phase = state.phase
+	if state.phase in [WorkshopState.Phase.RESULTS, WorkshopState.Phase.FINISHED] \
+			and not results_panel.visible and not _asked_results and not multiplayer.is_server():
+		_asked_results = true # he entrado a mitad de los resultados: se los pido al anfitrión
+		state.request_results.rpc_id(1)
+	elif state.phase == WorkshopState.Phase.PRODUCTION:
+		_asked_results = false
+	# Tic-tac en los últimos 10 segundos de producción o reparto.
+	if state.seconds_left != _last_seconds:
+		_last_seconds = state.seconds_left
+		if state.phase in [WorkshopState.Phase.PRODUCTION, WorkshopState.Phase.DELIVERY] \
+				and state.seconds_left > 0 and state.seconds_left <= 10:
+			Sfx.play("tick")
 
 
 ## Resumen de la noche que manda el anfitrión al terminar el reparto.

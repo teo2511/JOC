@@ -71,7 +71,7 @@ mouse_filter = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 15
-text = "TALLER DE ELFOS (zona de pruebas)
+text = "TALLER DE ELFOS
 WASD moverse · Espacio saltar · E coger/soltar/usar
 Clic izquierdo lanzar · Clic derecho empujar · Esc opciones"
 
@@ -134,6 +134,42 @@ theme_override_font_sizes/font_size = 20
 text = "Resultados"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="SleighHint" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -170.0
+offset_right = 200.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="SleighArrow" type="Label" parent="SleighHint"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 56
+text = "↑"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SleighText" type="Label" parent="SleighHint"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
+text = "El trineo está en el patio"
+horizontal_alignment = 1
 
 [node name="Banner" type="Label" parent="."]
 unique_name_in_owner = true

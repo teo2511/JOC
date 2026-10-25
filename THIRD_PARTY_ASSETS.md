@@ -7,7 +7,11 @@ Cada recurso externo se registra aquí antes de usarlo, con su licencia comproba
 | Godot Engine 4.6 | https://godotengine.org | MIT | Motor. Requiere incluir su aviso de licencia en los créditos del juego publicado |
 
 Todos los modelos, materiales y el icono actuales están creados en el propio proyecto con
-formas básicas de Godot. No hay sonidos ni música todavía.
+formas básicas de Godot.
+
+Los efectos de sonido (`assets/audio/sfx/*.wav`) también son propios: los genera
+`tools/generate_sounds.py` con síntesis sencilla (numpy), sin muestras de terceros. No hay
+música todavía.
 
 ## Fuentes previstas
 

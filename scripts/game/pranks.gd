@@ -45,6 +45,7 @@ func server_push_player(pusher_id: int, target_id: int) -> bool:
 		return false
 	_push_ready_at[pusher_id] = _now() + PUSH_COOLDOWN
 	var dir := offset.normalized() if offset.length() > 0.01 else -pusher.global_basis.z
+	pusher.play_prank_anim.rpc("push")
 	return server_hit(target_id, dir * PUSH_FORCE + Vector3.UP * PUSH_LIFT, "push")
 
 
@@ -73,6 +74,8 @@ func server_hit(target_id: int, impulse: Vector3, kind: String) -> bool:
 	if target == null:
 		return false
 	_immune_until[target_id] = _now() + IMMUNITY_TIME
+	Sfx.broadcast(kind if Sfx.has_sound(kind) else "push", target.latest_position() + Vector3.UP)
+	target.play_prank_anim.rpc("hit")
 	for item in get_tree().get_nodes_in_group("carryable"):
 		if item.holder_peer == target_id:
 			item.server_release(target_id, impulse * 0.4)

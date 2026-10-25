@@ -106,6 +106,7 @@ var _time_left := 0.0
 var _night_sacked := 0
 var _earned_at_start := 0
 var _run_delivered := 0
+var _last_results := {}
 
 
 func _process(delta: float) -> void:
@@ -195,6 +196,7 @@ func server_start_night() -> bool:
 	phase = Phase.PRODUCTION
 	_set_timer(PRODUCTION_TIME)
 	server_announce("¡Noche %d! Llenad el saco con %d regalos" % [night, goal])
+	Sfx.broadcast("night_start")
 	if is_complete(): # sobraban regalos de antes
 		server_start_delivery()
 	return true
@@ -221,6 +223,7 @@ func server_start_delivery(time_up := false) -> bool:
 	elif bonus > 0:
 		text += " (+%d monedas por acabar antes)" % bonus
 	server_announce(text)
+	Sfx.broadcast("sleigh")
 	return true
 
 
@@ -269,6 +272,7 @@ func server_end_delivery() -> void:
 	sleigh_gifts = 0
 	phase = Phase.RESULTS
 	_set_timer(RESULTS_TIME)
+	_last_results = results
 	_announce_results.rpc(results)
 
 
@@ -338,11 +342,22 @@ func _announce_text(text: String) -> void:
 	announced.emit(text)
 
 
+## Quien entra mientras se ven los resultados los pide al anfitrión (ver HUD).
+@rpc("any_peer", "call_remote", "reliable")
+func request_results() -> void:
+	var id := multiplayer.get_remote_sender_id()
+	if multiplayer.is_server() and id != 0 and not _last_results.is_empty() \
+			and phase in [Phase.RESULTS, Phase.FINISHED]:
+		_announce_results.rpc_id(id, _last_results)
+
+
 @rpc("authority", "call_local", "reliable")
 func _announce_results(results: Dictionary) -> void:
+	Sfx.play("results")
 	results_ready.emit(results)
 
 
 @rpc("authority", "call_local", "reliable")
 func _announce_purchase(index: int, buyer_name: String) -> void:
+	Sfx.play("coin")
 	upgrade_bought.emit(index, buyer_name)

@@ -26,6 +26,9 @@ func _run() -> void:
 	await _test_snowballs_and_lever()
 	await _test_delivery()
 	await _test_night_cycle()
+	await _test_sounds()
+	await _test_polish()
+	await _seconds(2.0) # que terminen los últimos sonidos antes de salir
 	print("\n%d pruebas correctas, %d fallos" % [_passes, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -149,8 +152,7 @@ func _test_spawn_button() -> void:
 	print("Botón (objeto usable)")
 	var zone := await _load_zone()
 	var player: Player = _player(zone)
-	var button: Interactable = zone.get_node("TestZone/SpawnButton")
-	var count_before := get_tree().get_nodes_in_group("carryable").size()
+	var button: Interactable = zone.get_node("TestZone/StartButton")
 	player.global_position = button.global_position + Vector3(0, 0, 1.6)
 	player.rotation = Vector3.ZERO
 	player.head.rotation.x = deg_to_rad(-30)
@@ -158,7 +160,7 @@ func _test_spawn_button() -> void:
 	check(player.interaction._focused == button, "el rayo detecta el botón")
 	check(player.interaction.interact(), "E pulsa el botón")
 	await _frames(2)
-	check(get_tree().get_nodes_in_group("carryable").size() == count_before + 1, "aparece un regalo nuevo")
+	check(zone.state.phase == WorkshopState.Phase.PRODUCTION, "el botón EMPEZAR empieza la noche")
 	check(not button.server_use(player), "el botón tiene tiempo de espera")
 	await _unload(zone)
 
@@ -631,3 +633,62 @@ func _wait_until(cond: Callable, timeout: float) -> bool:
 		await get_tree().physics_frame
 	return cond.call()
 
+
+
+func _test_sounds() -> void:
+	print("Sonidos")
+	for sound in ["pick", "throw", "drop", "click", "wood", "machine", "ding", "wrap", "sack", "coin",
+			"boing", "push", "snow", "chimney", "house_done", "sleigh", "night_start", "results", "tick"]:
+		check(Sfx.has_sound(sound), "existe el sonido '%s'" % sound)
+	var zone := await _load_zone()
+	var me: Player = _player(zone)
+	Sfx.played.clear()
+	var gift: Carryable = zone.get_node("TestZone/Items/Gift4")
+	me.global_position = gift.global_position + Vector3(0, 0, 1.2)
+	await _frames(2)
+	gift.server_try_pick(1)
+	await _frames(1)
+	me.interaction.throw_held()
+	await _frames(2)
+	check(Sfx.played.has("pick") and Sfx.played.has("throw"), "suenan coger y lanzar")
+	zone.state.server_start_night()
+	await _frames(1)
+	check(Sfx.played.has("night_start"), "suena el inicio de la noche")
+	var before := Sfx.get_child_count()
+	await _seconds(1.5)
+	check(Sfx.get_child_count() < before or before == 0, "los sonidos terminados se borran")
+	await _unload(zone)
+
+
+func _test_polish() -> void:
+	print("Decoración y avisos")
+	var zone := await _load_zone()
+	var me: Player = _player(zone)
+	var state: WorkshopState = zone.state
+	check(zone.get_node_or_null("TestZone/SpawnButton") == null, "ya no está el botón de regalos gratis")
+	check(zone.get_node_or_null("TestZone/Decor/TreeWorkshop") != null and zone.get_node_or_null("TestZone/Decor/TreeYard") != null, "hay árboles de Navidad en el taller y en el patio")
+	var lights = zone.get_node("TestZone/Decor/LightsNorth")
+	var bulbs := 0
+	for mm in lights.get_children():
+		bulbs += mm.multimesh.instance_count
+	check(bulbs > 30, "la guirnalda tiene bombillas (%d)" % bulbs)
+	me.global_position = Vector3(0, 0.1, 3)
+	me.rotation = Vector3.ZERO
+	state.server_start_night()
+	while not state.is_complete():
+		state.server_add_gift()
+	await _frames(3)
+	var hud = zone.hud
+	check(hud.sleigh_hint.visible, "al llegar el trineo, una flecha indica el camino")
+	check(absf(hud.sleigh_arrow.rotation - PI / 2) < 0.3, "la flecha apunta hacia el patio (a la derecha)")
+	me.global_position = zone.get_node("TestZone/Yard/Sleigh").global_position + Vector3(0, 0.1, 3)
+	await _frames(3)
+	check(not hud.sleigh_hint.visible, "junto al trineo la flecha desaparece")
+	var friend := _fake_player(zone, 2, me.global_position + Vector3(0, 0, -1.2))
+	await _frames(2)
+	zone.pranks.server_push_player(1, 2)
+	await _seconds(0.1)
+	check(friend.get_node("Body").scale != Vector3.ONE, "al recibir un empujón el elfo se aplasta un momento")
+	await _seconds(0.5)
+	check(friend.get_node("Body").scale.is_equal_approx(Vector3.ONE) and me.get_node("Body").position.z == 0.0, "y vuelve a su forma")
+	await _unload(zone)

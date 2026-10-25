@@ -122,6 +122,31 @@ repetir. El test imprime ahora datos extra ("DEBUG") si vuelven a fallar.
 
 Capturas `empezar` y `resultados`.
 
+### Resultado del 25-oct-2026, Fase 10
+
+`tests/run_tests.tscn`: **178 correctas, 0 fallos**. Nuevas: existen los 19 sonidos, suenan
+coger, lanzar y el inicio de la noche, los sonidos acabados se borran (antes se acumulaban en los
+tests sin tarjeta de sonido), ya no está el botón de regalos gratis, hay árboles y guirnaldas,
+la flecha aparece en el reparto, apunta hacia el patio y desaparece junto al trineo, las
+animaciones del empujón se hacen y se deshacen.
+
+`tools/run_net_test.sh`, 5 veces seguidas: **anfitrión 34/34, cliente 44/44** (sin las 3
+comprobaciones del botón de regalos gratis, que ya no existe). Nueva: si el cliente no tiene los
+resultados en pantalla, los pide y los recibe. Antes hubo 2 fallos de carrera del propio test
+(comprobaciones hechas de golpe en vez de esperar), corregidos.
+
+**No probado:** cómo suenan. Los sonidos se generan y se reproducen sin errores, pero desde el
+entorno de desarrollo no se pueden escuchar.
+
+Capturas `inicio`, `taller`, `patio` y `flecha` con el ambiente de noche.
+
+## Pruebas manuales: Fase 10 (pendiente, las hace teo)
+
+1. Escucha los sonidos: coger, lanzar, fábrica, envolver, saco, empujón, bola de nieve,
+   chimenea, trineo. ¿Alguno molesta, suena muy fuerte o muy flojo?
+2. ¿Se ve bien el taller de noche o está demasiado oscuro en tu pantalla?
+3. ¿Va fluido (sin tirones) con la nieve y las luces?
+
 ## Pruebas manuales: Fase 9 (pendiente, las hace teo con amigos)
 
 1. Al entrar todos, pulsad EMPEZAR: arriba sale "Noche 1/5" y el reloj.

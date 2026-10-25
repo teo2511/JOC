@@ -6,7 +6,7 @@ mejoráis el taller y repartís los regalos, mientras os empujáis y os robáis 
 
 - Motor: **Godot 4.6** (versión estándar, no .NET). Lenguaje: **GDScript**.
 - Plataforma: Windows primero, publicación prevista en Steam.
-- Estado: **Fase 9**, partida completa: 5 noches de producción y reparto hasta Nochebuena, con resultados, récord y modo infinito. Ver [TASKS.md](TASKS.md).
+- Estado: **Fase 10**, partida completa de 5 noches con sonidos, taller navideño de noche (luces, árboles, nieve) y avisos. Ver [TASKS.md](TASKS.md).
 
 ## Cómo abrirlo
 
@@ -94,6 +94,7 @@ Test de multijugador real (dos procesos conectados en el mismo PC, Linux/macOS o
 tools/run_net_test.sh ruta/a/godot
 ```
 Capturas de pantalla de revisión: `godot res://tools/screenshot.tscn -- <carpeta>`.
+Sonidos: `python3 tools/generate_sounds.py` los vuelve a generar en `assets/audio/sfx/`.
 
 ## Estructura
 

@@ -58,6 +58,7 @@ func _on_used(_by: Player) -> void:
 	if toys.is_empty():
 		return
 	wrap_progress += 1
+	Sfx.broadcast("wrap", global_position)
 	if wrap_progress < presses_needed:
 		status_text = "Envolviendo..."
 		return
@@ -72,6 +73,7 @@ func _wrap_first_toy() -> void:
 	var pos := toy.global_position + Vector3.UP * 0.25
 	if toy.server_consume():
 		game().spawn_item(GIFT_SCENE, pos, Vector3.UP * 1.5)
+		Sfx.broadcast("ding", pos)
 	wrap_progress = 0
 	status_text = ""
 	server_scan()

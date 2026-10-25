@@ -148,6 +148,19 @@ unirse por invitación, `SteamMultiplayerPeer`). El resto del juego no sabe qué
 - El récord se guarda en `user://records.cfg` del anfitrión (`record_path`; los tests usan otro
   archivo).
 
+## Sonido y ambiente (Fase 10)
+
+- `Sfx` (autoload) carga los .wav de `assets/audio/sfx/`. `play()` suena solo en este PC;
+  `broadcast()` (solo el anfitrión) usa un RPC del autoload, que tiene la misma ruta en todos.
+  Los reproductores se borran con un temporizador y no con `finished`, porque sin tarjeta de
+  sonido (tests) `finished` puede no llegar.
+- Sonidos ligados a cambios que ya se sincronizan (coger un objeto, compras, resultados) suenan
+  en cada PC sin RPC extra; los de las estaciones y bromas los manda el anfitrión.
+- Guirnaldas: un MultiMesh por color (pocas llamadas de dibujo). Nieve: CPUParticles3D sin sombras.
+- Animación de bromas: `Player.play_prank_anim` (RPC any_peer, solo se acepta del anfitrión).
+- Ojo con las carreras en red: un RPC fiable puede llegar antes que el cambio sincronizado
+  del mismo instante. Los tests de red esperan a la condición en vez de comprobarla de golpe.
+
 ## Tests
 
 `tests/run_tests.tscn` es una escena y no un script `-s` porque los scripts `-s` se compilan

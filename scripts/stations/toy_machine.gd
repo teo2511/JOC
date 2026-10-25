@@ -42,6 +42,7 @@ func server_scan() -> void:
 			break
 		if wood.server_consume():
 			queued += 1
+			Sfx.broadcast("machine", global_position)
 	working = queued > 0
 	_refresh_status()
 
@@ -56,6 +57,7 @@ func server_tick(delta: float) -> void:
 		var out_dir := _output.global_basis.z.normalized()
 		var speed := eject_speed_with_conveyor if _has_conveyor else eject_speed
 		game().spawn_item(TOY_SCENE, _output.global_position, out_dir * speed + Vector3.UP)
+		Sfx.broadcast("ding", _output.global_position)
 		working = queued > 0
 	_refresh_status()
 

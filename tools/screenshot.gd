@@ -16,6 +16,7 @@ const VIEWS := [
 	{"name": "nieve", "pos": Vector3(7, 0.1, 7.5), "yaw": 180.0, "pitch": -12.0, "snow": true},
 	{"name": "patio", "pos": Vector3(16, 0.1, 0), "yaw": -90.0, "pitch": -2.0, "delivery": true},
 	{"name": "chimenea", "pos": Vector3(28, 0.1, -3.5), "yaw": 20.0, "pitch": 22.0, "delivery": true},
+	{"name": "flecha", "pos": Vector3(-2, 0.1, 4), "yaw": 0.0, "pitch": -8.0, "delivery": true},
 	{"name": "resultados", "pos": Vector3(0, 0.1, 3), "yaw": 0.0, "pitch": -10.0, "results": true},
 ]
 
