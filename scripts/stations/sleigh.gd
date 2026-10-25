@@ -29,7 +29,7 @@ func _on_used(by: Player) -> void:
 ## Llega volando desde el cielo (solo se ve: la colisión ya está en su sitio).
 func _land() -> void:
 	for child in get_children():
-		if child is MeshInstance3D or child is Label3D:
+		if child is Node3D and not child is CollisionShape3D:
 			var final_pos: Vector3 = child.position
 			child.position = final_pos + Vector3(-12, 8, 0)
 			var tween := create_tween()

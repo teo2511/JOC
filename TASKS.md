@@ -113,6 +113,19 @@ Estados: **Hecho** (implementado y probado), **Implementado** (falta probarlo a 
 - [x] Animaciones: el que empuja se lanza, el que recibe se aplasta, el trineo llega volando. **Hecho** (tests)
 - [x] Quien entra durante los resultados los pide al anfitrión. **Hecho** (red)
 - [ ] Música de fondo navideña (propia o CC0). **Pendiente**
-- [ ] Modelos más bonitos (elfos, máquinas) con recursos CC0 tipo Kenney o Quaternius. **Pendiente**, valorar con teo
+- [x] Modelos más bonitos (elfos, máquinas). **Hecho** en "Gráficos 1" (abajo)
 - [ ] Medir rendimiento en el PC de teo (FPS) con 4 jugadores. **Pendiente**
 - [ ] Ajustar volúmenes de cada sonido cuando teo los oiga. **Pendiente**
+
+## Gráficos 1 (teo: "le falta muchísimo en cuanto a gráficos")
+
+- [x] Shaders propios sin texturas: tablones de madera (suelo, paredes, valla, tejado, ladrillo), nieve con destellos, cielo con estrellas, nubes y luna. **Hecho** (capturas)
+- [x] Taller con tejado nevado a dos aguas, vigas, postes, ventanas y faroles colgados; farolas en el patio. **Hecho** (capturas)
+- [x] Paisaje de fondo: llanura nevada, unos 400 abetos nevados (un solo MultiMesh) y colinas. **Hecho** (capturas)
+- [x] Elfos animados: personaje CC0 de Kenney sin penacho, con gorro, orejas, pelo y túnica del color de cada jugador. Animaciones de quieto, andar, correr, saltar, llevar algo y empujar. **Hecho** (capturas y tests)
+- [x] Casas con tablones pintados, carámbanos, chimenea de ladrillo con humo, corona, contraventanas y luces; las ventanas brillan al servir la casa. **Hecho** (capturas)
+- [x] Trineo nuevo: patines curvados, remates dorados, saco con regalos y farol. **Hecho** (capturas)
+- [x] Detalles en las estaciones (cajón con troncos y hacha, fábrica con tuberías y relojes, mesa con rollos y carretes, saco con estrella, cinta con rodillos, pala en la nieve) y en los objetos (regalos de 6 colores con lazo, coches, madera con veta, pelotas a franjas). **Hecho** (capturas)
+- [ ] Comprobar FPS en el PC de teo: hay más piezas y sombras que antes. **Pendiente**
+- [ ] Si teo descarga el "Holiday Kit" de Kenney (CC0), cambiar árboles, regalos y adornos por esos modelos. **Opcional**
+- [ ] Manos del elfo propio en primera persona. **Pendiente**

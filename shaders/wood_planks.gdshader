@@ -14,13 +14,15 @@ uniform float grain = 0.35;
 uniform bool vertical = false;
 // Franja más oscura abajo de las paredes (zócalo), en metros. 0 = sin zócalo.
 uniform float baseboard_height = 0.0;
+// Para objetos que se mueven: los tablones van pegados al objeto en vez de al mundo.
+uniform bool object_space = false;
 
 varying vec3 world_pos;
 varying vec3 world_normal;
 
 void vertex() {
-	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
-	world_normal = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
+	world_pos = object_space ? VERTEX : (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	world_normal = object_space ? NORMAL : normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
 }
 
 void fragment() {

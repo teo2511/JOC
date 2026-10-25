@@ -1,6 +1,7 @@
 [gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/props/night_button.gd" id="1_button"]
+[ext_resource type="Script" path="res://scripts/props/station_look.gd" id="look_1"]
 
 [sub_resource type="BoxShape3D" id="Shape_base"]
 size = Vector3(0.9, 1.0, 0.9)
@@ -46,3 +47,7 @@ font_size = 40
 pixel_size = 0.006
 modulate = Color(0.75, 1, 0.75, 1)
 text = "EMPEZAR"
+
+[node name="Look" type="Node3D" parent="."]
+script = ExtResource("look_1")
+kind = "pedestal"

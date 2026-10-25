@@ -122,6 +122,16 @@ repetir. El test imprime ahora datos extra ("DEBUG") si vuelven a fallar.
 
 Capturas `empezar` y `resultados`.
 
+### Resultado del 25-oct-2026, Gráficos 1
+
+`tests/run_tests.tscn`: **178 correctas, 0 fallos** (no hay pruebas nuevas: son cambios visuales).
+`tools/run_net_test.sh`, 2 veces: **anfitrión 34/34, cliente 44/44**.
+Capturas nuevas con `tools/screenshot.gd`: `taller_amplio`, `exterior`, `elfo_cara`, y repetidas
+todas las anteriores. Revisadas a ojo: taller, patio, casas, trineo, elfos, estaciones y objetos.
+
+**No probado:** rendimiento en un PC real (aquí se dibuja con OpenGL por software) ni con el
+renderizador Forward+ que usará Windows.
+
 ### Resultado del 25-oct-2026, Fase 10
 
 `tests/run_tests.tscn`: **178 correctas, 0 fallos**. Nuevas: existen los 19 sonidos, suenan
@@ -139,6 +149,12 @@ resultados en pantalla, los pide y los recibe. Antes hubo 2 fallos de carrera de
 entorno de desarrollo no se pueden escuchar.
 
 Capturas `inicio`, `taller`, `patio` y `flecha` con el ambiente de noche.
+
+## Pruebas manuales: Gráficos 1 (pendiente, las hace teo)
+
+1. ¿Va fluido? Mira los FPS (Depurador > Monitores en el editor) en el taller y en el patio.
+2. ¿Se ven bien los elfos de tus amigos al andar, saltar y llevar regalos?
+3. ¿Está muy oscuro o muy claro el taller o la nieve en tu pantalla?
 
 ## Pruebas manuales: Fase 10 (pendiente, las hace teo)
 
