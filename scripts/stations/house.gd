@@ -53,12 +53,14 @@ func _handle(item: Carryable) -> void:
 	if _delivering and item.kind == "gift" and not is_satisfied():
 		if item.server_consume():
 			received += 1
+			Sfx.broadcast("house_done" if is_satisfied() else "chimney", _chimney.global_position + Vector3(0.8, 0, 0))
 			game().state.server_deliver()
 			game().server_check_delivery()
 	else:
 		var away := item.global_position - global_position
 		away.y = 0
 		item.linear_velocity = away.normalized() * spit_speed + Vector3.UP * spit_speed
+		Sfx.broadcast("boing", item.global_position)
 
 
 ## Lo llama Game en el anfitrión al empezar una noche nueva.

@@ -18,10 +18,12 @@ func server_scan() -> void:
 		if item.kind == "gift" and not item.from_sleigh:
 			if item.server_consume():
 				game().state.server_add_gift()
+				Sfx.broadcast("sack", global_position)
 		else:
 			var away := (item.global_position - global_position)
 			away.y = 0
 			item.linear_velocity = away.normalized() * spit_speed + Vector3.UP * spit_speed
+			Sfx.broadcast("boing", global_position)
 
 
 func on_state_changed(state: WorkshopState) -> void:

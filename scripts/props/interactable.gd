@@ -46,5 +46,6 @@ func server_use(by: Player) -> bool:
 	if not can_use():
 		return false
 	_ready_at = Time.get_ticks_msec() / 1000.0 + cooldown
+	Sfx.broadcast("click", global_position)
 	used.emit(by)
 	return true

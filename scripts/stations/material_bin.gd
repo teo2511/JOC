@@ -30,5 +30,6 @@ func _on_used(by: Player) -> void:
 			hands_free = false
 	var pos := by.get_hold_transform().origin if hands_free else _drop_point.global_position
 	var wood: Carryable = game().spawn_item(item_scene, pos)
+	Sfx.broadcast("snow" if item_kind == "snowball" else "wood", global_position)
 	if hands_free:
 		wood.server_try_pick(by.peer_id)

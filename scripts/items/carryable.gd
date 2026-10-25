@@ -110,6 +110,7 @@ func server_release(peer_id: int, velocity: Vector3) -> bool:
 		return false
 	holder_peer = 0
 	linear_velocity = velocity.limit_length(MAX_RELEASE_SPEED)
+	Sfx.broadcast("throw" if velocity.length() > 5.0 else "drop", global_position)
 	angular_velocity = Vector3(randf_range(-2, 2), randf_range(-2, 2), randf_range(-2, 2))
 	return true
 
@@ -162,6 +163,7 @@ func _apply_holder(old: int, new: int) -> void:
 		if body:
 			_set_exception(body)
 		set_highlighted(false)
+		Sfx.play("pick", global_position, -4.0)
 	else:
 		# Se recupera la colisión un instante después, cuando ya se ha alejado de sus manos.
 		get_tree().create_timer(0.3).timeout.connect(func():

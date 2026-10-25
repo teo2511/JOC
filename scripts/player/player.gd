@@ -202,6 +202,21 @@ func apply_hit(impulse: Vector3, kind: String) -> void:
 	hit_received.emit(kind)
 
 
+## Animaciones de las bromas, en todos los PCs (las manda el anfitrión).
+@rpc("any_peer", "call_local", "unreliable")
+func play_prank_anim(kind: String) -> void:
+	if multiplayer.get_remote_sender_id() not in [0, 1]:
+		return
+	var body: Node3D = $Body
+	var tween := create_tween()
+	if kind == "push": # el que empuja se lanza hacia delante
+		tween.tween_property(body, "position:z", -0.35, 0.08)
+		tween.tween_property(body, "position:z", 0.0, 0.2)
+	else: # el que recibe se aplasta un momento
+		tween.tween_property(body, "scale", Vector3(1.25, 0.75, 1.25), 0.08)
+		tween.tween_property(body, "scale", Vector3.ONE, 0.25).set_trans(Tween.TRANS_ELASTIC)
+
+
 func respawn() -> void:
 	interaction.drop_held()
 	global_transform = _spawn_transform

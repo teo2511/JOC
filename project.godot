@@ -21,6 +21,7 @@ config/icon="res://icon.svg"
 
 Settings="*res://scripts/autoload/settings.gd"
 Network="*res://scripts/autoload/network.gd"
+Sfx="*res://scripts/autoload/sfx.gd"
 
 [display]
 

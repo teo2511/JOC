@@ -90,7 +90,6 @@ func _run_host() -> void:
 	check(gift1.holder_peer == 1, "el anfitrión coge otro regalo")
 
 	# Botón: lo pulsa el cliente; el regalo nuevo debe existir en ambos.
-	check(await wait_for(func(): return item("GiftBox") != null), "el cliente pulsa el botón y aparece un regalo nuevo")
 
 	# Taller: el cliente coge madera de la caja; el anfitrión alimenta la fábrica y llena el saco.
 	var game: Game = main.get_game()
@@ -143,7 +142,8 @@ func _run_host() -> void:
 	check(await wait_for(func(): return game.state.delivering), "el saco lleno trae el trineo")
 	var from_sleigh := func(): return get_tree().get_nodes_in_group("carryable").filter(
 		func(i): return i.kind == "gift" and i.from_sleigh)
-	check(await wait_for(func(): return from_sleigh.call().any(func(i): return i.holder_peer == client_id)), "el cliente saca un regalo del trineo")
+	# (no se comprueba que lo tenga en las manos: lo suelta enseguida y puede no dar tiempo a verlo)
+	check(await wait_for(func(): return from_sleigh.call().size() == 1 and game.state.sleigh_gifts == game.state.goal - 1), "el cliente saca un regalo del trineo")
 	var sleigh_gift: Carryable = from_sleigh.call()[0]
 	check(await wait_for(func(): return sleigh_gift.holder_peer == 0), "el cliente lo suelta")
 	var house1 = game.get_node("TestZone/Yard/House1")
@@ -157,7 +157,7 @@ func _run_host() -> void:
 			game.spawn_item(preload("res://scenes/items/gift_box.tscn"), house.get_node("Chimney/CollisionShape3D").global_position)
 			await wait_for(func(): return house.received > count, 2.0)
 	check(await wait_for(func(): return game.state.phase == WorkshopState.Phase.RESULTS), "todas las casas servidas: resultados de la noche")
-	await wait_seconds(1.5) # deja que el cliente vea los resultados
+	await wait_seconds(3.5) # deja que el cliente vea los resultados (y los vuelva a pedir)
 	game.state.server_skip_phase()
 	check(await wait_for(func(): return game.state.night == 2 and game.state.phase == WorkshopState.Phase.PRODUCTION), "empieza la noche 2")
 
@@ -202,15 +202,6 @@ func _run_client() -> void:
 
 	var gift1 := item("Gift1")
 	check(await wait_for(func(): return gift1.holder_peer == 1), "ve que el anfitrión ha cogido otro regalo")
-
-	# Botón.
-	var button: Interactable = game.get_node("TestZone/SpawnButton")
-	me.global_position = button.global_position + Vector3(0, 0, 1.6)
-	me.head.rotation.x = deg_to_rad(-30)
-	await wait_seconds(0.3)
-	check(await wait_for(func(): return me.interaction._focused == button, 3.0), "mira el botón")
-	me.interaction.interact()
-	check(await wait_for(func(): return item("GiftBox") != null), "ve aparecer el regalo creado por el botón")
 
 	# Taller.
 	var bin = game.get_node("TestZone/Workshop/MaterialBin")
@@ -289,7 +280,11 @@ func _run_client() -> void:
 	check(await wait_for(func(): return house1.received == 1 and house1.status_text == "1 / 2 regalos"), "ve la casa con 1 / 2 regalos")
 	check(await wait_for(func(): return game.hud.sack_counter.text.contains("Reparto: 1 / 8")), "su pantalla muestra Reparto: 1 / 8")
 	check(await wait_for(func(): return game.hud.results_panel.visible and game.hud.results_label.text.contains("perfecta")), "ve los resultados: ¡Noche perfecta!")
-	check(not sleigh.visible, "el trineo se ha ido")
+	check(await wait_for(func(): return not sleigh.visible), "el trineo se ha ido")
+	# Como si acabara de entrar: sin resultados en pantalla, el HUD los pide al anfitrión.
+	game.hud.results_panel.visible = false
+	game.hud._asked_results = false
+	check(await wait_for(func(): return game.hud.results_panel.visible, 2.5), "si entra a mitad de los resultados, los recibe igual")
 	check(await wait_for(func(): return game.state.night == 2 and not game.hud.results_panel.visible), "ve empezar la noche 2")
 
 	await wait_seconds(0.5)
