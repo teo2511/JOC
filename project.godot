@@ -13,13 +13,14 @@ config_version=5
 config/name="Taller de Elfos"
 config/description="Cooperativo navideño en primera persona para 2-4 elfos."
 config/version="0.1.0"
-run/main_scene="res://scenes/test/test_zone.tscn"
+run/main_scene="res://scenes/main/main.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
 Settings="*res://scripts/autoload/settings.gd"
+Network="*res://scripts/autoload/network.gd"
 
 [display]
 

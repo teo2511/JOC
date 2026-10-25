@@ -1,11 +1,13 @@
 extends CanvasLayer
-## Interfaz de la zona de pruebas: punto de mira, aviso de interacción y menú de pausa
-## con las opciones básicas (sensibilidad, invertir eje Y, volumen).
+## Interfaz de la partida: punto de mira, aviso de interacción, lista de jugadores y
+## menú de pausa con las opciones básicas (sensibilidad, invertir eje Y, volumen).
+## La pausa no detiene la partida: los demás siguen jugando.
 
-@export var player: Player
+var player: Player
 
 @onready var crosshair: Label = %Crosshair
 @onready var prompt: Label = %Prompt
+@onready var player_list: Label = %PlayerList
 @onready var pause_menu: Control = %PauseMenu
 @onready var sensitivity_slider: HSlider = %SensitivitySlider
 @onready var sensitivity_value: Label = %SensitivityValue
@@ -16,8 +18,6 @@ extends CanvasLayer
 func _ready() -> void:
 	pause_menu.visible = false
 	prompt.text = ""
-	if player:
-		player.interaction.prompt_changed.connect(_on_prompt_changed)
 	sensitivity_slider.value = Settings.mouse_sensitivity
 	invert_y_check.button_pressed = Settings.invert_y
 	volume_slider.value = Settings.master_volume
@@ -26,7 +26,14 @@ func _ready() -> void:
 	invert_y_check.toggled.connect(_on_invert_y_toggled)
 	volume_slider.value_changed.connect(_on_volume_changed)
 	%ResumeButton.pressed.connect(close_pause)
-	%QuitButton.pressed.connect(func(): get_tree().quit())
+	%LeaveButton.pressed.connect(_on_leave_pressed)
+	Network.players_changed.connect(_update_player_list)
+	_update_player_list()
+
+
+func set_player(p: Player) -> void:
+	player = p
+	player.interaction.prompt_changed.connect(_on_prompt_changed)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -54,6 +61,22 @@ func close_pause() -> void:
 	Settings.save_settings()
 	if player:
 		player.set_mouse_captured(true)
+
+
+func _on_leave_pressed() -> void:
+	Settings.save_settings()
+	Network.leave()
+
+
+func _update_player_list() -> void:
+	var lines: Array[String] = []
+	var ids := Network.players.keys()
+	ids.sort()
+	for id in ids:
+		var tag := " (anfitrión)" if id == 1 else ""
+		var you := " ← tú" if id == multiplayer.get_unique_id() else ""
+		lines.append("● " + Network.player_name(id) + tag + you)
+	player_list.text = "Elfos %d/%d\n%s" % [ids.size(), Network.MAX_PLAYERS, "\n".join(lines)]
 
 
 func _on_prompt_changed(text: String) -> void:
