@@ -129,3 +129,14 @@ Estados: **Hecho** (implementado y probado), **Implementado** (falta probarlo a 
 - [ ] Comprobar FPS en el PC de teo: hay más piezas y sombras que antes. **Pendiente**
 - [ ] Si teo descarga el "Holiday Kit" de Kenney (CC0), cambiar árboles, regalos y adornos por esos modelos. **Opcional**
 - [ ] Manos del elfo propio en primera persona. **Pendiente**
+
+## Roblox R1. Lo básico
+
+- [x] Proyecto Rojo en `roblox/` (servidor, cliente, compartido) que genera `TallerDeElfos.rbxlx`. **Hecho** (`rojo build`)
+- [x] Mapa construido por código: taller de madera con tejado nevado, vigas, ventanas, faroles y guirnaldas; patio nevado con valla; bosque alrededor; nieve cayendo; noche con atmósfera y brillo. **Hecho** (sin ver: falta abrirlo en Studio)
+- [x] Primera persona fija y gorro de elfo con orejas del color de cada jugador sobre su avatar. **Hecho** (sin ver)
+- [x] Coger con [E] (ProximityPrompt), soltar con [E] y lanzar con clic, todo validado en el servidor. Botones en móvil. **Hecho** (sin probar)
+- [x] Cajón de madera, fábrica (cola de 3, 3 s), mesa de envolver ([F] tres veces) y saco (10 monedas por regalo). **Hecho** (sin probar)
+- [x] HUD: regalos del saco, monedas, ayuda y lo que llevas. **Hecho** (sin probar)
+- [x] Tests de las reglas con `luau` y tipos estrictos con `luau-lsp` y los tipos de Roblox. **Hecho**
+- [ ] teo lo abre en Studio y prueba el bucle con 1 y con 2 jugadores. **Pendiente**

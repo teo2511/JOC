@@ -122,6 +122,26 @@ repetir. El test imprime ahora datos extra ("DEBUG") si vuelven a fallar.
 
 Capturas `empezar` y `resultados`.
 
+### Resultado del 25-oct-2026, Roblox R1
+
+- `luau tests/run.luau` (en `roblox/`): **7 correctas, 0 fallos** (objetivos por noche y jugadores).
+- `luau-lsp analyze` 1.70.1 con los tipos de Roblox, en modo `--!strict`: **0 errores** en todo `src/`.
+- `rojo build` 7.4.4: genera `TallerDeElfos.rbxlx` con 1 Script, 2 LocalScripts, 7 ModuleScripts,
+  el RemoteEvent `Release`, primera persona fija y la iluminación "Future".
+
+**No probado:** nada se ha ejecutado dentro de Roblox. Roblox Studio solo funciona en Windows y Mac,
+y aquí no se puede abrir. Hace falta que teo lo abra y pruebe.
+
+## Pruebas manuales: Roblox R1 (pendiente, las hace teo en Roblox Studio)
+
+1. Abre `TallerDeElfos.rbxlx` y pulsa Play. ¿Apareces dentro del taller, en primera persona?
+2. Ve al cajón de MADERA, pulsa [E]: ¿tienes un bloque en las manos? [E] lo suelta, clic lo lanza.
+3. Echa la madera encima de la fábrica: ¿sale un coche por delante a los 3 segundos?
+4. Deja el coche en la mesa y pulsa [F] tres veces: ¿sale un regalo?
+5. Mete el regalo en el saco: ¿sube "Saco: 1 / 6" y las monedas a 10?
+6. Pestaña Probar > 2 jugadores: ¿os veis con gorro de elfo, cada uno de un color?
+7. Si algo sale en rojo en la ventana "Salida" (Output), cópialo y pásamelo.
+
 ### Resultado del 25-oct-2026, Gráficos 1
 
 `tests/run_tests.tscn`: **178 correctas, 0 fallos** (no hay pruebas nuevas: son cambios visuales).
