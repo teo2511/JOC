@@ -36,7 +36,19 @@ Estados: **Hecho** (implementado y probado), **Implementado** (falta probarlo a 
 - [x] Un jugador que sale: su elfo desaparece, suelta lo que llevaba y la partida sigue. **Hecho** (test de red)
 - [x] Si el anfitrión cierra, los demás vuelven al menú con un mensaje. **Implementado**
 - [x] Lista de jugadores en pantalla y "Salir al menú" en la pausa. **Implementado**
-- [ ] Prueba con dos ventanas en el PC de teo y con un amigo. **Pendiente**
+- [x] Prueba con dos ventanas / un amigo en el PC de teo. **Hecho** (25-oct: "va bastante bien la conexión")
 - [ ] Reconexión: volver a unirse a la misma partida tras salir. **Implementado sin test** (el flujo es el mismo que unirse)
 - [ ] Objeto grande que transportan dos jugadores. **Pendiente** (se hará con las máquinas, Fase 5)
-- [ ] GodotSteam: lobby, invitaciones y SteamMultiplayerPeer con AppID 480. **Pendiente**
+- [ ] GodotSteam: lobby, invitaciones y SteamMultiplayerPeer con AppID 480. **Pendiente** (se hará antes de la Fase 11; necesita pruebas con dos cuentas de Steam reales)
+
+## Fase 5. Primera cadena de producción
+
+- [x] Tipos de objeto (`kind`): material, toy, gift. Regla `server_consume()`: un objeto libre se gasta una sola vez. **Hecho** (tests)
+- [x] Caja de madera: E te da un bloque en las manos (o encima si ya llevas algo); máximo 12 sueltos. **Hecho** (tests y red)
+- [x] Fábrica de juguetes: tolva arriba, 3 s por juguete, cola de 3, sale un coche por la rampa, engranaje girando. **Hecho** (tests y red)
+- [x] Mesa de envolver: juguete encima + 3 pulsaciones de E = regalo. **Hecho** (tests)
+- [x] Saco de Santa: cuenta regalos libres una vez, escupe lo demás, crece al llenarse. **Hecho** (tests y red)
+- [x] Estado compartido del taller (regalos en el saco, objetivo 10) y aviso "¡Saco lleno!". **Hecho** (tests y red)
+- [x] Carteles 3D sobre cada estación con su estado. **Implementado** (visto en captura)
+- [ ] Prueba por teo con amigos: ¿se entiende la cadena sin explicarla? **Pendiente**
+- [ ] Sonidos de la cadena (Fase 10). **Pendiente**

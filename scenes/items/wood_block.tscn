@@ -1,0 +1,46 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/carryable.gd" id="1_carry"]
+
+[sub_resource type="PhysicsMaterial" id="PhysMat_wood"]
+friction = 0.9
+bounce = 0.05
+
+[sub_resource type="BoxShape3D" id="Shape_wood"]
+size = Vector3(0.5, 0.22, 0.3)
+
+[sub_resource type="StandardMaterial3D" id="Mat_wood"]
+albedo_color = Color(0.72, 0.5, 0.28, 1)
+roughness = 0.95
+
+[sub_resource type="BoxMesh" id="Mesh_wood"]
+material = SubResource("Mat_wood")
+size = Vector3(0.5, 0.22, 0.3)
+
+[sub_resource type="SceneReplicationConfig" id="Repl_item"]
+properties/0/path = NodePath(".:holder_peer")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:sync_position")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:sync_rotation")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+
+[node name="WoodBlock" type="RigidBody3D"]
+mass = 1.0
+physics_material_override = SubResource("PhysMat_wood")
+script = ExtResource("1_carry")
+kind = "material"
+display_name = "Madera"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("Shape_wood")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh_wood")
+
+[node name="Sync" type="MultiplayerSynchronizer" parent="."]
+replication_interval = 0.05
+replication_config = SubResource("Repl_item")

@@ -8,6 +8,8 @@ var player: Player
 @onready var crosshair: Label = %Crosshair
 @onready var prompt: Label = %Prompt
 @onready var player_list: Label = %PlayerList
+@onready var sack_counter: Label = %SackCounter
+@onready var banner: Label = %Banner
 @onready var pause_menu: Control = %PauseMenu
 @onready var sensitivity_slider: HSlider = %SensitivitySlider
 @onready var sensitivity_value: Label = %SensitivityValue
@@ -29,6 +31,12 @@ func _ready() -> void:
 	%LeaveButton.pressed.connect(_on_leave_pressed)
 	Network.players_changed.connect(_update_player_list)
 	_update_player_list()
+	banner.visible = false
+	var state := get_parent().get_node_or_null("State") as WorkshopState
+	if state:
+		state.changed.connect(_update_sack.bind(state))
+		state.goal_reached.connect(_show_banner.bind("¡Saco lleno! Noche completada"))
+		_update_sack(state)
 
 
 func set_player(p: Player) -> void:
@@ -66,6 +74,20 @@ func close_pause() -> void:
 func _on_leave_pressed() -> void:
 	Settings.save_settings()
 	Network.leave()
+
+
+func _update_sack(state: WorkshopState) -> void:
+	sack_counter.text = "Saco: %d / %d" % [state.gifts_in_sack, state.goal]
+
+
+func _show_banner(text: String) -> void:
+	banner.text = text
+	banner.visible = true
+	banner.modulate.a = 1.0
+	var tween := create_tween()
+	tween.tween_interval(3.0)
+	tween.tween_property(banner, "modulate:a", 0.0, 1.0)
+	tween.tween_callback(func(): banner.visible = false)
 
 
 func _update_player_list() -> void:

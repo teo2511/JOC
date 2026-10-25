@@ -72,6 +72,22 @@ no con la suavizada.
 **Siguiente paso de red:** GodotSteam. Solo cambiará `Network.host()` / `join()` (crear lobby,
 unirse por invitación, `SteamMultiplayerPeer`). El resto del juego no sabe qué transporte hay.
 
+## Cadena de producción (Fase 5)
+
+- `Station` (hereda de `Interactable`) es la base de todas las estaciones. Solo en el anfitrión,
+  cada 0,15 s mira qué objetos libres hay en sus `Area3D` (`server_scan`) y cada frame avanza
+  su trabajo (`server_tick`). Se usa sondeo y no `body_entered` porque un objeto soltado dentro
+  de la zona no vuelve a disparar la señal.
+- Un objeto se gasta con `Carryable.server_consume()`: falla si ya estaba gastado o alguien lo
+  lleva. Es la única forma de que algo desaparezca en una estación, así un regalo no cuenta dos
+  veces aunque toque el saco varios frames.
+- Lo que deben ver todos se sincroniza en cada estación (`status_text`, `queued`, `working`,
+  `has_toy`, `wrap_progress`). El porcentaje de la fábrica va de 10 en 10 para no mandar un
+  mensaje por frame.
+- `WorkshopState` (nodo `Game/State`) guarda regalos en el saco y objetivo; lo cambia solo el
+  anfitrión. HUD y saco escuchan su señal `changed`.
+- `Game.spawn_item()` crea objetos en el nodo que vigila el `ItemSpawner`.
+
 ## Tests
 
 `tests/run_tests.tscn` es una escena y no un script `-s` porque los scripts `-s` se compilan

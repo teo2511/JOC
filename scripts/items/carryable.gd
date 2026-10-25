@@ -14,6 +14,8 @@ signal holder_changed(old_peer: int, new_peer: int)
 
 ## Nombre que aparece en el aviso de interacción ("[E] Coger Regalo").
 @export var display_name := "Objeto"
+## Qué es en la cadena de producción: "material", "toy" (juguete sin envolver) o "gift".
+@export_enum("material", "toy", "gift", "other") var kind := "other"
 ## Altura por debajo de la cual el objeto vuelve a su punto de aparición.
 @export var respawn_below_y := -10.0
 
@@ -32,6 +34,9 @@ var holder_peer := 0:
 ## Posición y rotación que el anfitrión envía a los demás.
 var sync_position := Vector3.ZERO
 var sync_rotation := Quaternion.IDENTITY
+
+## true en cuanto una estación lo ha usado: ya no cuenta para nada más.
+var consumed := false
 
 var _spawn_transform: Transform3D
 var _mesh: MeshInstance3D
@@ -111,6 +116,21 @@ func server_release(peer_id: int, velocity: Vector3) -> bool:
 func server_force_release() -> void:
 	if holder_peer != 0:
 		server_release(holder_peer, Vector3.ZERO)
+
+
+## Lo gasta una estación (máquina, mesa, saco). Devuelve false si ya estaba gastado o
+## alguien lo lleva en las manos, así un mismo objeto nunca cuenta dos veces.
+func server_consume() -> bool:
+	if consumed or holder_peer != 0:
+		return false
+	consumed = true
+	queue_free()
+	return true
+
+
+## Si está libre y quieto dentro de una estación, puede usarse.
+func is_available() -> bool:
+	return not consumed and holder_peer == 0 and not is_queued_for_deletion()
 
 
 func server_respawn() -> void:

@@ -9,6 +9,7 @@ const VIEWS := [
 	{"name": "mesa_regalos", "pos": Vector3(-3, 0.1, -1.5), "yaw": 0.0, "pitch": -25.0},
 	{"name": "boton", "pos": Vector3(-6, 0.1, -8.4), "yaw": 0.0, "pitch": -30.0},
 	{"name": "otro_elfo", "pos": Vector3(0, 0.1, 6), "yaw": 0.0, "pitch": -5.0},
+	{"name": "taller", "pos": Vector3(-4, 0.1, -6.5), "yaw": 0.0, "pitch": -8.0},
 ]
 
 

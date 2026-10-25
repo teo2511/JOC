@@ -6,7 +6,7 @@ mejoráis el taller y repartís los regalos, mientras os empujáis y os robáis 
 
 - Motor: **Godot 4.6** (versión estándar, no .NET). Lenguaje: **GDScript**.
 - Plataforma: Windows primero, publicación prevista en Steam.
-- Estado: **Fase 4**, cooperativo online por IP (ENet) en la zona de pruebas. Ver [TASKS.md](TASKS.md).
+- Estado: **Fase 5**, primera cadena de producción online (madera → fábrica → envolver → saco). Ver [TASKS.md](TASKS.md).
 
 ## Cómo abrirlo
 
@@ -27,6 +27,15 @@ mejoráis el taller y repartís los regalos, mientras os empujáis y os robáis 
   en su router, o que los dos usáis una red virtual gratuita como Tailscale o ZeroTier y os conectáis
   con esa IP. Esto desaparecerá al pasar a Steam, que conecta sin abrir puertos.
 - Windows puede preguntar si permites a Godot usar la red: acepta en "redes privadas".
+
+## Cómo se juega (de momento)
+
+1. **Madera:** mira la caja marrón y pulsa E. Te da un bloque de madera en las manos.
+2. **Fábrica de juguetes:** echa la madera por el embudo de arriba (lánzala o suéltala encima).
+   En 3 segundos sale un coche de juguete por la rampa. Caben 3 bloques en cola.
+3. **Mesa de envolver:** deja el juguete encima y pulsa E tres veces mirando la mesa.
+4. **Saco de Santa:** echa el regalo dentro. Con 10 regalos se completa la noche.
+   Si echas algo que no es un regalo, el saco lo escupe.
 
 ## Controles
 

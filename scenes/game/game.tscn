@@ -1,8 +1,17 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/game.gd" id="1_game"]
 [ext_resource type="PackedScene" path="res://scenes/test/test_zone.tscn" id="2_level"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="3_hud"]
+[ext_resource type="Script" path="res://scripts/game/workshop_state.gd" id="4_state"]
+
+[sub_resource type="SceneReplicationConfig" id="Repl_state"]
+properties/0/path = NodePath(".:gifts_in_sack")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:goal")
+properties/1/spawn = true
+properties/1/replication_mode = 2
 
 [node name="Game" type="Node3D"]
 script = ExtResource("1_game")
@@ -15,7 +24,13 @@ script = ExtResource("1_game")
 spawn_path = NodePath("../Players")
 
 [node name="ItemSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://scenes/items/gift_box.tscn", "res://scenes/items/toy_ball.tscn")
+_spawnable_scenes = PackedStringArray("res://scenes/items/gift_box.tscn", "res://scenes/items/toy_ball.tscn", "res://scenes/items/wood_block.tscn", "res://scenes/items/toy_car.tscn")
 spawn_path = NodePath("../TestZone/Items")
+
+[node name="State" type="Node" parent="."]
+script = ExtResource("4_state")
+
+[node name="StateSync" type="MultiplayerSynchronizer" parent="State"]
+replication_config = SubResource("Repl_state")
 
 [node name="HUD" parent="." instance=ExtResource("3_hud")]
