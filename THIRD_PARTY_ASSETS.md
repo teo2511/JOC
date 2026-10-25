@@ -16,6 +16,16 @@ Los efectos de sonido (`assets/audio/sfx/*.wav`) también son propios: los gener
 `tools/generate_sounds.py` con síntesis sencilla (numpy), sin muestras de terceros. No hay
 música todavía.
 
+## Versión de Roblox (`roblox/`)
+
+No usa recursos de terceros: todo el mapa son piezas de Roblox creadas por código, con los
+materiales que trae Roblox (madera, nieve, pizarra...). La nieve que cae usa una textura que
+viene con Roblox (`rbxasset://textures/particles/sparkles_main.dds`).
+
+Herramientas de desarrollo (no van dentro del juego): Rojo 7.4.4 (MPL-2.0,
+https://github.com/rojo-rbx/rojo), Luau 0.650 (MIT, https://github.com/luau-lang/luau) y
+luau-lsp 1.70.1 (MIT, https://github.com/JohnnyMorganz/luau-lsp).
+
 ## Fuentes previstas
 
 - Kenney (https://kenney.nl): CC0. Desde el entorno de desarrollo en la nube solo se puede

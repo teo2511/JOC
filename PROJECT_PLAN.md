@@ -12,6 +12,17 @@ contenido extra.
 
 ## Decisiones aprobadas
 
+- **25-oct-2026: cambio a Roblox** (teo: "no lo veo para Steam, lo veo mucho más para
+  Roblox"; elegido en la tarjeta de decisión). Se reescribe en Luau dentro de `roblox/`, con
+  Rojo para generar el sitio. Los servidores online los pone Roblox (no hay anfitrión ni
+  Steam). Se mantienen el diseño, los números y el bucle de noches. La versión de Godot de
+  abajo queda aparcada.
+- Fases de Roblox: **R1** lo básico (taller, coger y lanzar, cadena de producción, HUD);
+  **R2** mejoras y bromas; **R3** patio, casas, trineo y ciclo de 5 noches; **R4** sonidos,
+  pulido, móvil y publicación.
+
+Decisiones de la versión de Godot:
+
 - Motor Godot 4.6, GDScript, sin otros lenguajes ni frameworks.
 - Online con **anfitrión autoritativo** (un jugador hace de servidor). ENet en desarrollo,
   Steam (GodotSteam: lobbies, invitaciones, relay de Valve) para la versión publicada.

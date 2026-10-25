@@ -4,8 +4,11 @@ Videojuego indie 3D cooperativo navideño en primera persona para 2-4 jugadores 
 Sois elfos en el taller de Santa: fabricáis juguetes, los envolvéis, llenáis el saco,
 mejoráis el taller y repartís los regalos, mientras os empujáis y os robáis cosas de las manos.
 
+> **25-oct-2026: el juego pasa a Roblox.** La versión nueva está en [roblox/](roblox/README.md).
+> Esta versión de Godot se queda guardada tal cual por si algún día se publica en Steam.
+
 - Motor: **Godot 4.6** (versión estándar, no .NET). Lenguaje: **GDScript**.
-- Plataforma: Windows primero, publicación prevista en Steam.
+- Plataforma: Windows primero, publicación prevista en Steam (aparcada, ver arriba).
 - Estado: **Fase 10**, partida completa de 5 noches con sonidos, taller navideño de noche (luces, árboles, nieve) y avisos. Ver [TASKS.md](TASKS.md).
 
 ## Cómo abrirlo
