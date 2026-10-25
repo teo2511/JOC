@@ -40,9 +40,13 @@ var sync_pitch := 0.0
 @onready var interaction: PlayerInteraction = $Interaction
 @onready var hold_point: Node3D = %HoldPoint
 @onready var name_tag: Label3D = $NameTag
+@onready var elf: ElfModel = $Body/Elf
 
 var _spawn_transform: Transform3D
 var _knockback_left := 0.0
+var _last_position := Vector3.ZERO
+var _anim_speed := 0.0
+var _holding := false
 
 
 ## Busca el elfo de un jugador por su peer id.
@@ -70,18 +74,39 @@ func _ready() -> void:
 	else:
 		camera.current = false
 		input_enabled = false
-		# El cuerpo de los demás se ve (capa 1); el propio va en la capa 2, que tu cámara no dibuja.
-		$Body.layers = 1
-		$Body/Hat.layers = 1
 		name_tag.text = display_name
 		if sync_position != Vector3.ZERO:
 			global_position = sync_position
 
 
 func _apply_look() -> void:
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = elf_color
-	$Body.material_override = mat
+	elf.set_color(elf_color)
+	# El cuerpo de los demás se ve (capa 1); el propio va en la capa 2, que tu cámara no dibuja,
+	# y tampoco da sombra para que no tape la vista.
+	elf.set_layers(2 if is_local() else 1)
+	elf.set_cast_shadows(not is_local())
+	_last_position = global_position
+
+
+func _process(delta: float) -> void:
+	# Animación según la velocidad real (sirve igual para el elfo propio y los de los demás).
+	if delta <= 0.0:
+		return
+	var moved := global_position - _last_position
+	_last_position = global_position
+	var speed := Vector2(moved.x, moved.z).length() / delta
+	_anim_speed = lerpf(_anim_speed, speed, 1.0 - exp(-12.0 * delta))
+	if Engine.get_process_frames() % 10 == 0:
+		_holding = _is_holding()
+	var on_floor := is_on_floor() if is_local() else absf(moved.y) / delta < 0.5
+	elf.update_motion(_anim_speed, on_floor, _holding, delta)
+
+
+func _is_holding() -> bool:
+	for item in get_tree().get_nodes_in_group("carryable"):
+		if item.holder_peer == peer_id:
+			return true
+	return false
 
 
 ## Última posición conocida: la real si es el elfo propio, la recibida por red si es de otro.
@@ -210,6 +235,7 @@ func play_prank_anim(kind: String) -> void:
 	var body: Node3D = $Body
 	var tween := create_tween()
 	if kind == "push": # el que empuja se lanza hacia delante
+		elf.play_once("interact-right")
 		tween.tween_property(body, "position:z", -0.35, 0.08)
 		tween.tween_property(body, "position:z", 0.0, 0.2)
 	else: # el que recibe se aplasta un momento

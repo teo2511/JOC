@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://shaders/wood_planks.gdshader" id="1"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/color_a = Color(0.2, 0.11, 0.07, 1)
+shader_parameter/color_b = Color(0.3, 0.17, 0.1, 1)
+shader_parameter/plank_width = 0.3
+shader_parameter/plank_length = 3.0
+shader_parameter/seam_width = 0.03

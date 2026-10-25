@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=31 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/items/gift_box.tscn" id="3_gift"]
 [ext_resource type="PackedScene" path="res://scenes/items/toy_ball.tscn" id="4_ball"]
@@ -15,12 +15,19 @@
 [ext_resource type="PackedScene" path="res://scenes/props/night_button.tscn" id="16_night"]
 [ext_resource type="PackedScene" path="res://scenes/props/christmas_tree.tscn" id="17_tree"]
 [ext_resource type="PackedScene" path="res://scenes/props/string_lights.tscn" id="18_lights"]
+[ext_resource type="Material" path="res://materials/wood_floor.tres" id="20_floor"]
+[ext_resource type="Material" path="res://materials/wood_wall.tres" id="21_wall"]
+[ext_resource type="Material" path="res://materials/wood_green.tres" id="22_green"]
+[ext_resource type="Material" path="res://materials/snow.tres" id="23_snow"]
+[ext_resource type="Material" path="res://materials/fence.tres" id="24_fence"]
+[ext_resource type="Material" path="res://materials/wood_dark.tres" id="25_dark"]
+[ext_resource type="Shader" path="res://shaders/night_sky.gdshader" id="26_sky"]
+[ext_resource type="Script" path="res://scripts/props/workshop_building.gd" id="27_building"]
+[ext_resource type="Script" path="res://scripts/props/scenery.gd" id="28_scenery"]
+[ext_resource type="Script" path="res://scripts/props/lantern.gd" id="29_lantern"]
 
-[sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]
-sky_top_color = Color(0.02, 0.04, 0.12, 1)
-sky_horizon_color = Color(0.12, 0.16, 0.32, 1)
-ground_bottom_color = Color(0.05, 0.06, 0.1, 1)
-ground_horizon_color = Color(0.12, 0.16, 0.32, 1)
+[sub_resource type="ShaderMaterial" id="Sky_mat"]
+shader = ExtResource("26_sky")
 
 [sub_resource type="Sky" id="Sky_main"]
 sky_material = SubResource("Sky_mat")
@@ -33,21 +40,15 @@ ambient_light_color = Color(0.5, 0.56, 0.8, 1)
 ambient_light_energy = 0.55
 tonemap_mode = 2
 ssao_enabled = true
+ssao_intensity = 2.5
 glow_enabled = true
-
-[sub_resource type="StandardMaterial3D" id="Mat_floor"]
-albedo_color = Color(0.55, 0.36, 0.22, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="Mat_wall"]
-albedo_color = Color(0.82, 0.72, 0.6, 1)
-
-[sub_resource type="StandardMaterial3D" id="Mat_accent"]
-albedo_color = Color(0.16, 0.45, 0.28, 1)
-
-[sub_resource type="StandardMaterial3D" id="Mat_snow"]
-albedo_color = Color(0.95, 0.97, 1, 1)
-roughness = 0.6
+glow_intensity = 0.9
+glow_bloom = 0.08
+glow_hdr_threshold = 0.9
+fog_enabled = true
+fog_light_color = Color(0.09, 0.12, 0.24, 1)
+fog_density = 0.008
+fog_sky_affect = 0.25
 
 [sub_resource type="StandardMaterial3D" id="Mat_flake"]
 shading_mode = 0
@@ -77,55 +78,70 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 use_collision = true
 size = Vector3(30, 1, 30)
-material = SubResource("Mat_floor")
+material = ExtResource("20_floor")
 
 [node name="WallNorth" type="CSGBox3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -15)
 use_collision = true
 size = Vector3(30, 3, 0.5)
-material = SubResource("Mat_wall")
+material = ExtResource("21_wall")
 
 [node name="WallSouth" type="CSGBox3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 15)
 use_collision = true
 size = Vector3(30, 3, 0.5)
-material = SubResource("Mat_wall")
+material = ExtResource("21_wall")
 
 [node name="WallEastN" type="CSGBox3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 1.5, -8.5)
 use_collision = true
 size = Vector3(0.5, 3, 13)
-material = SubResource("Mat_wall")
+material = ExtResource("21_wall")
 
 [node name="WallEastS" type="CSGBox3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 1.5, 8.5)
 use_collision = true
 size = Vector3(0.5, 3, 13)
-material = SubResource("Mat_wall")
+material = ExtResource("21_wall")
 
 [node name="YardFloor" type="CSGBox3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, -0.5, 0)
 use_collision = true
 size = Vector3(30, 1, 30)
-material = SubResource("Mat_snow")
+material = ExtResource("23_snow")
 
 [node name="YardWallNorth" type="CSGBox3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 1.0, -15)
 use_collision = true
 size = Vector3(30, 2, 0.4)
-material = SubResource("Mat_accent")
+material = ExtResource("24_fence")
 
 [node name="YardWallSouth" type="CSGBox3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 1.0, 15)
 use_collision = true
 size = Vector3(30, 2, 0.4)
-material = SubResource("Mat_accent")
+material = ExtResource("24_fence")
 
 [node name="YardWallEast" type="CSGBox3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45, 1.0, 0)
 use_collision = true
 size = Vector3(0.4, 2, 30)
-material = SubResource("Mat_accent")
+material = ExtResource("24_fence")
+
+[node name="YardCapNorth" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 2.05, -15)
+size = Vector3(30.2, 0.12, 0.6)
+material = ExtResource("23_snow")
+
+[node name="YardCapSouth" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 2.05, 15)
+size = Vector3(30.2, 0.12, 0.6)
+material = ExtResource("23_snow")
+
+[node name="YardCapEast" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45, 2.05, 0)
+size = Vector3(0.6, 0.12, 30.2)
+material = ExtResource("23_snow")
 
 [node name="YardSign" type="Label3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 3.4, 0)
@@ -139,48 +155,54 @@ text = "PATIO DEL REPARTO"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 1.5, 0)
 use_collision = true
 size = Vector3(0.5, 3, 30)
-material = SubResource("Mat_wall")
+material = ExtResource("21_wall")
 
 [node name="Platform" type="CSGBox3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.6, -8)
 use_collision = true
 size = Vector3(6, 1.2, 6)
-material = SubResource("Mat_accent")
+material = ExtResource("22_green")
 
 [node name="Ramp" type="CSGBox3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, 0.958, 0.287, 0, -0.287, 0.958, 8, 0.45, -3.6)
 use_collision = true
 size = Vector3(3, 0.3, 4.4)
-material = SubResource("Mat_accent")
+material = ExtResource("22_green")
 
 [node name="Table" type="CSGBox3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.45, -4)
 use_collision = true
 size = Vector3(3, 0.9, 1.2)
-material = SubResource("Mat_wall")
+material = ExtResource("25_dark")
 
 [node name="JumpBlock1" type="CSGBox3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.3, 6)
 use_collision = true
 size = Vector3(1.5, 0.6, 1.5)
-material = SubResource("Mat_snow")
+material = ExtResource("23_snow")
 
 [node name="JumpBlock2" type="CSGBox3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.6, 6)
 use_collision = true
 size = Vector3(1.5, 1.2, 1.5)
-material = SubResource("Mat_snow")
+material = ExtResource("23_snow")
 
 [node name="Bin" type="CSGBox3D" parent="Level"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, 6)
 use_collision = true
 size = Vector3(2, 1, 2)
-material = SubResource("Mat_accent")
+material = ExtResource("22_green")
 
 [node name="BinHole" type="CSGBox3D" parent="Level/Bin"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
 operation = 2
 size = Vector3(1.7, 1, 1.7)
+
+[node name="Building" type="Node3D" parent="."]
+script = ExtResource("27_building")
+
+[node name="Scenery" type="Node3D" parent="."]
+script = ExtResource("28_scenery")
 
 [node name="Items" type="Node3D" parent="."]
 
@@ -313,50 +335,62 @@ end_point = Vector3(0, 0, 4.4)
 sag = 0.5
 
 [node name="LampWorkshop1" type="OmniLight3D" parent="Decor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 3.2, -9)
+script = ExtResource("29_lantern")
+ceiling_y = 2.98
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 2.55, -9)
 light_color = Color(1, 0.78, 0.5, 1)
 light_energy = 1.3
 omni_range = 13.0
 
 [node name="LampWorkshop2" type="OmniLight3D" parent="Decor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3.2, -9)
+script = ExtResource("29_lantern")
+ceiling_y = 2.98
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 2.55, -9)
 light_color = Color(1, 0.78, 0.5, 1)
 light_energy = 1.3
 omni_range = 13.0
 
 [node name="LampWorkshop3" type="OmniLight3D" parent="Decor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 3.2, 5)
+script = ExtResource("29_lantern")
+ceiling_y = 2.98
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 2.55, 5)
 light_color = Color(1, 0.78, 0.5, 1)
 light_energy = 1.1
 omni_range = 13.0
 
 [node name="LampWorkshop4" type="OmniLight3D" parent="Decor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 3.2, 5)
+script = ExtResource("29_lantern")
+ceiling_y = 2.98
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 2.55, 5)
 light_color = Color(1, 0.78, 0.5, 1)
 light_energy = 1.1
 omni_range = 13.0
 
 [node name="LampYard1" type="OmniLight3D" parent="Decor"]
+script = ExtResource("29_lantern")
+hanging = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 3.5, 0)
 light_color = Color(1, 0.8, 0.55, 1)
 light_energy = 1.2
 omni_range = 14.0
 
 [node name="LampYard2" type="OmniLight3D" parent="Decor"]
+script = ExtResource("29_lantern")
+hanging = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, 3.5, 0)
 light_color = Color(1, 0.8, 0.55, 1)
 light_energy = 1.2
 omni_range = 14.0
 
 [node name="Snowfall" type="CPUParticles3D" parent="Decor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 14, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31, 14, 0)
 cast_shadow = 0
-amount = 900
+amount = 700
 lifetime = 9.0
 preprocess = 9.0
 mesh = SubResource("Mesh_flake")
 emission_shape = 3
-emission_box_extents = Vector3(32, 0.5, 17)
+emission_box_extents = Vector3(17, 0.5, 18)
 direction = Vector3(0.2, -1, 0)
 spread = 10.0
 gravity = Vector3(0, -0.6, 0)
