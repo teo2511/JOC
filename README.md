@@ -6,7 +6,7 @@ mejoráis el taller y repartís los regalos, mientras os empujáis y os robáis 
 
 - Motor: **Godot 4.6** (versión estándar, no .NET). Lenguaje: **GDScript**.
 - Plataforma: Windows primero, publicación prevista en Steam.
-- Estado: **Fase 5**, primera cadena de producción online (madera → fábrica → envolver → saco). Ver [TASKS.md](TASKS.md).
+- Estado: **Fase 6**, cadena de producción con dinero común, mejoras y automatización. Ver [TASKS.md](TASKS.md).
 
 ## Cómo abrirlo
 
@@ -36,6 +36,10 @@ mejoráis el taller y repartís los regalos, mientras os empujáis y os robáis 
 3. **Mesa de envolver:** deja el juguete encima y pulsa E tres veces mirando la mesa.
 4. **Saco de Santa:** echa el regalo dentro. Con 10 regalos se completa la noche.
    Si echas algo que no es un regalo, el saco lo escupe.
+5. **Monedas y mejoras:** cada regalo da 10 monedas al equipo. En el **tablón de mejoras** (pared
+   izquierda) mira un botón y pulsa E para comprar con el dinero común. Botón verde = te llega,
+   gris = falta dinero, dorado = al máximo. Mejoras: Fábrica rápida, Fábrica grande, Botas de elfo,
+   Cinta transportadora (lleva los juguetes a la mesa) y Envolvedora automática.
 
 ## Controles
 

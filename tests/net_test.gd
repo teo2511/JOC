@@ -102,6 +102,10 @@ func _run_host() -> void:
 	gift.global_position = sack.global_position + Vector3(0, 1.3, 0)
 	gift.linear_velocity = Vector3.ZERO
 	check(await wait_for(func(): return game.state.gifts_in_sack == 1), "el regalo entra en el saco")
+	check(game.state.money == WorkshopState.GIFT_VALUE, "el regalo da monedas al equipo")
+	game.state.money += 200 # para que el cliente pueda comprar
+	check(await wait_for(func(): return game.state.level(Upgrades.CONVEYOR) == 1), "el cliente compra la cinta")
+	check(game.state.money == 210 - Upgrades.price(Upgrades.CONVEYOR, 0), "se descuenta del dinero común")
 
 	check(await wait_for(func(): return Network.players.size() == 1, 20.0), "el cliente sale de la partida")
 	await wait_seconds(0.3)
@@ -165,7 +169,22 @@ func _run_client() -> void:
 	var machine = game.get_node("TestZone/Workshop/ToyMachine")
 	check(await wait_for(func(): return machine.working and machine.status_text.begins_with("Fabricando")), "ve la fábrica trabajando")
 	check(await wait_for(func(): return game.state.gifts_in_sack == 1), "ve el saco con 1 regalo")
-	check(game.hud.sack_counter.text == "Saco: 1 / 10", "su pantalla muestra Saco: 1 / 10")
+	check(game.hud.sack_counter.text.begins_with("Saco: 1 / 10"), "su pantalla muestra Saco: 1 / 10")
+
+	# Mejoras: compra la cinta en el tablón.
+	me.interaction.drop_held() # con las manos ocupadas no se puede pulsar nada
+	check(await wait_for(func(): return me.interaction.held == null), "suelta la madera")
+	check(await wait_for(func(): return game.state.money >= 200), "ve el dinero común")
+	var up_button = game.get_node("TestZone/UpgradeBoard/Upgrade%d" % Upgrades.CONVEYOR)
+	me.global_position = up_button.global_position + Vector3(1.5, 0, 0)
+	me.rotation = Vector3(0, deg_to_rad(90), 0)
+	me.head.rotation.x = deg_to_rad(-25)
+	await wait_seconds(0.3)
+	check(await wait_for(func(): return me.interaction._focused == up_button, 3.0), "mira el botón de la cinta")
+	me.interaction.interact()
+	var conveyor = game.get_node("TestZone/Workshop/Conveyor")
+	check(await wait_for(func(): return conveyor.visible), "ve aparecer la cinta")
+	check(await wait_for(func(): return game.hud.banner.text.contains("Cliente")), "el aviso dice quién la ha comprado")
 
 	await wait_seconds(0.5)
 	Network.leave()

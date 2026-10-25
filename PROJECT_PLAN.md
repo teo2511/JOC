@@ -47,8 +47,8 @@ Fuera de alcance: todo lo de la sección 13.3 del prompt maestro.
 | 2 | Entorno y proyecto base | Hecha (pendiente de que teo lo abra en su PC) |
 | 3 | Prototipo de movimiento e interacción | Hecha (teo la ha probado: "no lo veo mal") |
 | 4 | Prototipo multijugador (ENet, luego Steam) | ENet hecho (teo: "va bastante bien la conexión"). Steam pendiente, antes de la Fase 11 |
-| 5 | Primera cadena de producción | Implementada y probada (tests y red); pendiente de prueba por teo |
-| 6 | Progresión incremental | Pendiente |
+| 5 | Primera cadena de producción | Hecha (teo: "sí que se entiende") |
+| 6 | Progresión incremental | Implementada y probada (tests y red); pendiente de prueba por teo. Falta el sonido |
 | 7 | Caos entre jugadores | Pendiente |
 | 8 | Reparto navideño | Pendiente |
 | 9 | Ciclo completo | Pendiente |

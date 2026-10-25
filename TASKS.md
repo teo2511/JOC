@@ -50,5 +50,20 @@ Estados: **Hecho** (implementado y probado), **Implementado** (falta probarlo a 
 - [x] Saco de Santa: cuenta regalos libres una vez, escupe lo demás, crece al llenarse. **Hecho** (tests y red)
 - [x] Estado compartido del taller (regalos en el saco, objetivo 10) y aviso "¡Saco lleno!". **Hecho** (tests y red)
 - [x] Carteles 3D sobre cada estación con su estado. **Implementado** (visto en captura)
-- [ ] Prueba por teo con amigos: ¿se entiende la cadena sin explicarla? **Pendiente**
+- [x] Prueba por teo: ¿se entiende la cadena sin explicarla? **Hecho** (25-oct: "sí que se entiende")
 - [ ] Sonidos de la cadena (Fase 10). **Pendiente**
+
+## Fase 6. Progresión incremental
+
+- [x] Dinero común: 10 monedas por regalo en el saco; solo se gasta comprando mejoras. **Hecho** (tests y red)
+- [x] Catálogo `Upgrades` con 5 mejoras y precios crecientes; `WorkshopState.server_buy()` valida dinero y nivel máximo. **Hecho** (tests)
+- [x] Tablón de mejoras con un botón por mejora: cartel con nivel, precio y efecto; color verde/gris/dorado. **Hecho** (tests, red y captura)
+- [x] Fábrica rápida (−25 % por nivel, 3 niveles): la máquina se vuelve dorada y el engranaje gira más rápido. **Hecho** (tests)
+- [x] Fábrica grande (+2 en cola, 2 niveles). **Hecho** (tests)
+- [x] Botas de elfo (+15 % velocidad, 2 niveles). **Hecho** (tests)
+- [x] Cinta transportadora (automatización 1): aparece al comprarla y lleva los juguetes de la fábrica a la mesa. **Hecho** (tests, red y captura)
+- [x] Envolvedora automática (automatización 2): la mesa envuelve sola cada 2 s. **Hecho** (tests)
+- [x] Aviso en pantalla para todos: "¡Fulano ha comprado X!". **Hecho** (red)
+- [ ] Sonido al comprar y de las máquinas (Fase 10, falta conseguir sonidos con licencia). **Pendiente**
+- [ ] Mientras llevas algo en las manos, E suelta y no pulsa botones. Valorar tras las pruebas si molesta. **Pendiente**
+- [ ] Equilibrar precios y tiempos tras jugar con amigos. **Pendiente**

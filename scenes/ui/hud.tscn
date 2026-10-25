@@ -61,7 +61,7 @@ mouse_filter = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 15
-text = "ZONA DE PRUEBAS · Madera → Fábrica → Mesa de envolver → Saco
+text = "ZONA DE PRUEBAS
 WASD moverse · Espacio saltar · E coger/soltar/usar
 Clic izquierdo lanzar · Esc opciones"
 

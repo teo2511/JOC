@@ -10,6 +10,8 @@ const VIEWS := [
 	{"name": "boton", "pos": Vector3(-6, 0.1, -8.4), "yaw": 0.0, "pitch": -30.0},
 	{"name": "otro_elfo", "pos": Vector3(0, 0.1, 6), "yaw": 0.0, "pitch": -5.0},
 	{"name": "taller", "pos": Vector3(-4, 0.1, -6.5), "yaw": 0.0, "pitch": -8.0},
+	{"name": "tablon", "pos": Vector3(-9.0, 0.1, -5.8), "yaw": 90.0, "pitch": -5.0},
+	{"name": "taller_mejorado", "pos": Vector3(-4, 0.1, -6.5), "yaw": 0.0, "pitch": -8.0, "upgrade": true},
 ]
 
 
@@ -28,6 +30,11 @@ func _ready() -> void:
 	player.set_physics_process(false)
 	await get_tree().create_timer(1.0).timeout
 	for view in VIEWS:
+		if view.get("upgrade", false):
+			zone.state.money = 1000
+			for i in [Upgrades.FAST_MACHINE, Upgrades.FAST_MACHINE, Upgrades.CONVEYOR, Upgrades.AUTO_WRAP]:
+				zone.state.server_buy(i, "Teo")
+			zone.state.server_add_gift()
 		player.global_position = view["pos"]
 		player.rotation.y = deg_to_rad(view["yaw"])
 		player.head.rotation.x = deg_to_rad(view["pitch"])

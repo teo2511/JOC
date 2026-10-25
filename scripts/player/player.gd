@@ -18,6 +18,8 @@ const REMOTE_SMOOTHING := 15.0
 
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var input_enabled := true
+## Lo ajusta la partida según la mejora "Botas de elfo".
+var speed_multiplier := 1.0
 var peer_id := 1
 var display_name := "Elfo"
 var elf_color := Color(0.13, 0.55, 0.25)
@@ -123,7 +125,7 @@ func _physics_process(delta: float) -> void:
 		if Input.is_action_just_pressed("jump") and is_on_floor():
 			velocity.y = jump_velocity
 
-	var wish := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)).normalized() * move_speed
+	var wish := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)).normalized() * move_speed * speed_multiplier
 	var accel := ground_acceleration if is_on_floor() else air_acceleration
 	var horizontal := Vector3(velocity.x, 0.0, velocity.z).move_toward(wish, accel * delta)
 	velocity.x = horizontal.x
