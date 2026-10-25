@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/items/carryable.gd" id="1_carry"]
+[ext_resource type="Script" path="res://scripts/props/item_look.gd" id="look_item"]
 
 [sub_resource type="PhysicsMaterial" id="PhysMat_ball"]
 friction = 0.6
@@ -41,6 +42,10 @@ shape = SubResource("SphereShape3D_ball")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
 mesh = SubResource("SphereMesh_ball")
+
+[node name="Look" type="Node3D" parent="Mesh"]
+script = ExtResource("look_item")
+kind = "ball"
 
 [node name="Sync" type="MultiplayerSynchronizer" parent="."]
 replication_interval = 0.05

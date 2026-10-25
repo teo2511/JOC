@@ -1,6 +1,7 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/items/carryable.gd" id="1_carry"]
+[ext_resource type="Script" path="res://scripts/props/item_look.gd" id="look_item"]
 
 [sub_resource type="PhysicsMaterial" id="PhysMat_car"]
 friction = 0.7
@@ -74,6 +75,10 @@ mesh = SubResource("Mesh_wheel")
 [node name="WheelBR" type="MeshInstance3D" parent="Mesh"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.16, -0.08, -0.15)
 mesh = SubResource("Mesh_wheel")
+
+[node name="Look" type="Node3D" parent="Mesh"]
+script = ExtResource("look_item")
+kind = "car"
 
 [node name="Sync" type="MultiplayerSynchronizer" parent="."]
 replication_interval = 0.05

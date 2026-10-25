@@ -17,7 +17,7 @@ var received := 0:
 		_refresh()
 
 @onready var _chimney: Area3D = $Chimney
-@onready var _windows: MeshInstance3D = $Windows
+@onready var _look: Node3D = $Look
 
 var _delivering := false
 
@@ -25,8 +25,6 @@ var _delivering := false
 func _ready() -> void:
 	super()
 	add_to_group("house")
-	# Material propio para encender las ventanas de esta casa sin encender las demás.
-	_windows.set_surface_override_material(0, (_windows.mesh as BoxMesh).material.duplicate())
 	_refresh()
 	# Un regalo lanzado cruza la boca muy deprisa: se cuenta al entrar, sin esperar al escaneo.
 	_chimney.body_entered.connect(func(body):
@@ -84,6 +82,6 @@ func _refresh() -> void:
 		status_text = "%d / %d regalos" % [received, wanted]
 	else:
 		status_text = "Quiere %d regalos" % wanted
-	var mat := _windows.get_surface_override_material(0) as StandardMaterial3D
-	if mat:
-		mat.emission_energy_multiplier = 2.5 if is_satisfied() else 0.0
+	# Las ventanas brillan mucho más cuando la casa ya tiene sus regalos.
+	var mat: StandardMaterial3D = _look.window_material
+	mat.emission_energy_multiplier = 3.0 if is_satisfied() else 0.35

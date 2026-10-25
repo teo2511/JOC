@@ -1,6 +1,7 @@
 [gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/stations/santa_sack.gd" id="1_sack"]
+[ext_resource type="Script" path="res://scripts/props/station_look.gd" id="look_1"]
 
 [sub_resource type="CylinderShape3D" id="Shape_base"]
 height = 1.0
@@ -59,3 +60,7 @@ billboard = 1
 outline_size = 10
 font_size = 44
 pixel_size = 0.008
+
+[node name="Look" type="Node3D" parent="."]
+script = ExtResource("look_1")
+kind = "sack"

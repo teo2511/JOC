@@ -1,6 +1,7 @@
 [gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/stations/toy_machine.gd" id="1_machine"]
+[ext_resource type="Script" path="res://scripts/props/station_look.gd" id="look_1"]
 
 [sub_resource type="BoxShape3D" id="Shape_body"]
 size = Vector3(1.6, 1.4, 1.4)
@@ -97,3 +98,7 @@ pixel_size = 0.008
 
 [node name="Sync" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("Repl_machine")
+
+[node name="Look" type="Node3D" parent="."]
+script = ExtResource("look_1")
+kind = "machine"

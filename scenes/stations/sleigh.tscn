@@ -1,39 +1,10 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/stations/sleigh.gd" id="1_sleigh"]
+[ext_resource type="Script" path="res://scripts/props/sleigh_look.gd" id="2_look"]
 
 [sub_resource type="BoxShape3D" id="Shape_body"]
 size = Vector3(2.8, 1.2, 1.5)
-
-[sub_resource type="StandardMaterial3D" id="Mat_body"]
-albedo_color = Color(0.78, 0.1, 0.1, 1)
-roughness = 0.5
-
-[sub_resource type="BoxMesh" id="Mesh_body"]
-material = SubResource("Mat_body")
-size = Vector3(2.6, 0.8, 1.4)
-
-[sub_resource type="StandardMaterial3D" id="Mat_gold"]
-albedo_color = Color(0.95, 0.75, 0.2, 1)
-metallic = 0.6
-roughness = 0.3
-
-[sub_resource type="BoxMesh" id="Mesh_runner"]
-material = SubResource("Mat_gold")
-size = Vector3(3.0, 0.1, 0.12)
-
-[sub_resource type="StandardMaterial3D" id="Mat_bag"]
-albedo_color = Color(0.55, 0.38, 0.2, 1)
-roughness = 0.9
-
-[sub_resource type="SphereMesh" id="Mesh_bag"]
-material = SubResource("Mat_bag")
-radius = 0.6
-height = 1.1
-
-[sub_resource type="BoxMesh" id="Mesh_back"]
-material = SubResource("Mat_body")
-size = Vector3(0.2, 0.7, 1.4)
 
 [node name="Sleigh" type="StaticBody3D"]
 script = ExtResource("1_sleigh")
@@ -43,25 +14,8 @@ title = "TRINEO DE SANTA"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 shape = SubResource("Shape_body")
 
-[node name="Body" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.65, 0)
-mesh = SubResource("Mesh_body")
-
-[node name="Back" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 1.35, 0)
-mesh = SubResource("Mesh_back")
-
-[node name="RunnerL" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -0.6)
-mesh = SubResource("Mesh_runner")
-
-[node name="RunnerR" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0.6)
-mesh = SubResource("Mesh_runner")
-
-[node name="Bag" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 1.4, 0)
-mesh = SubResource("Mesh_bag")
+[node name="Look" type="Node3D" parent="."]
+script = ExtResource("2_look")
 
 [node name="Label" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.6, 0)

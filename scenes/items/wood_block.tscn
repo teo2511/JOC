@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/items/carryable.gd" id="1_carry"]
+[ext_resource type="Script" path="res://scripts/props/item_look.gd" id="look_item"]
 
 [sub_resource type="PhysicsMaterial" id="PhysMat_wood"]
 friction = 0.9
@@ -40,6 +41,10 @@ shape = SubResource("Shape_wood")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
 mesh = SubResource("Mesh_wood")
+
+[node name="Look" type="Node3D" parent="Mesh"]
+script = ExtResource("look_item")
+kind = "wood"
 
 [node name="Sync" type="MultiplayerSynchronizer" parent="."]
 replication_interval = 0.05

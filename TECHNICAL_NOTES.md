@@ -161,6 +161,23 @@ unirse por invitación, `SteamMultiplayerPeer`). El resto del juego no sabe qué
 - Ojo con las carreras en red: un RPC fiable puede llegar antes que el cambio sincronizado
   del mismo instante. Los tests de red esperan a la condición en vez de comprobarla de golpe.
 
+## Gráficos
+
+- Shaders en `shaders/`, sin texturas: `wood_planks` calcula los tablones con la posición en el
+  mundo (no hace falta UV) y suaviza juntas y veta a lo lejos para evitar dibujos raros; con
+  `object_space` van pegados al objeto (madera que se mueve). `snow` y `night_sky` comparten el
+  ruido de `noise.gdshaderinc`. Los materiales listos están en `materials/`.
+- Decorado montado por código con `MeshKit` (cajas, cilindros...): `workshop_building.gd`,
+  `scenery.gd`, `lantern.gd` y los `*_look.gd` (casa, trineo, estaciones, objetos). Son `@tool`,
+  así que se ven en el editor. Solo son visuales: las colisiones siguen en las escenas.
+- `house_look.gd` expone `window_material`, que `house.gd` enciende al servir la casa.
+- Los regalos y coches eligen color con el hash del nombre del nodo, que es igual en todos los PC.
+- Elfo: `ElfModel` carga `character-soldier.glb` (Kenney, CC0), quita los triángulos del penacho
+  y la cresta (por altura y por zona de la paleta), recolorea la paleta por jugador y cuelga gorro
+  y orejas de un `BoneAttachment3D` en el hueso `head`. La animación se elige con la velocidad
+  real del elfo, así funciona igual para el propio y para los de los demás sin sincronizar nada.
+- El elfo propio va en la capa 2 (tu cámara no la dibuja) y sin sombra.
+
 ## Tests
 
 `tests/run_tests.tscn` es una escena y no un script `-s` porque los scripts `-s` se compilan

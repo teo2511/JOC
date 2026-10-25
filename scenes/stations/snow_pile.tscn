@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/stations/material_bin.gd" id="1_bin"]
 [ext_resource type="PackedScene" path="res://scenes/items/snowball.tscn" id="2_snowball"]
+[ext_resource type="Script" path="res://scripts/props/station_look.gd" id="look_1"]
 
 [sub_resource type="CylinderShape3D" id="Shape_pile"]
 height = 0.7
@@ -51,3 +52,7 @@ pixel_size = 0.008
 
 [node name="Sync" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("Repl_bin")
+
+[node name="Look" type="Node3D" parent="."]
+script = ExtResource("look_1")
+kind = "snow"
