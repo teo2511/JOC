@@ -10,6 +10,7 @@ var player: Player
 @onready var player_list: Label = %PlayerList
 @onready var sack_counter: Label = %SackCounter
 @onready var banner: Label = %Banner
+@onready var frost: ColorRect = %Frost
 @onready var pause_menu: Control = %PauseMenu
 @onready var sensitivity_slider: HSlider = %SensitivitySlider
 @onready var sensitivity_value: Label = %SensitivityValue
@@ -44,6 +45,14 @@ func _ready() -> void:
 func set_player(p: Player) -> void:
 	player = p
 	player.interaction.prompt_changed.connect(_on_prompt_changed)
+	player.hit_received.connect(_on_hit)
+
+
+## Bola de nieve: escarcha en la pantalla un momento. Empujón: un destello suave.
+func _on_hit(kind: String) -> void:
+	frost.color = Color(0.92, 0.97, 1.0, 0.75) if kind == "snow" else Color(1, 0.85, 0.7, 0.25)
+	var tween := create_tween()
+	tween.tween_property(frost, "color:a", 0.0, 1.2 if kind == "snow" else 0.3)
 
 
 func _unhandled_input(event: InputEvent) -> void:

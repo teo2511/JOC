@@ -12,6 +12,7 @@ const VIEWS := [
 	{"name": "taller", "pos": Vector3(-4, 0.1, -6.5), "yaw": 0.0, "pitch": -8.0},
 	{"name": "tablon", "pos": Vector3(-9.0, 0.1, -5.8), "yaw": 90.0, "pitch": -5.0},
 	{"name": "taller_mejorado", "pos": Vector3(-4, 0.1, -6.5), "yaw": 0.0, "pitch": -8.0, "upgrade": true},
+	{"name": "nieve", "pos": Vector3(7, 0.1, 7.5), "yaw": 180.0, "pitch": -12.0, "snow": true},
 ]
 
 
@@ -35,10 +36,17 @@ func _ready() -> void:
 			for i in [Upgrades.FAST_MACHINE, Upgrades.FAST_MACHINE, Upgrades.CONVEYOR, Upgrades.AUTO_WRAP]:
 				zone.state.server_buy(i, "Teo")
 			zone.state.server_add_gift()
+		if view.get("snow", false):
+			other.sync_position = Vector3(5.2, 0.1, 10.5)
+			for i in 3:
+				zone.spawn_item(preload("res://scenes/items/snowball.tscn"), Vector3(6.5 + i * 0.4, 1.4 + i * 0.3, 9.5 - i))
 		player.global_position = view["pos"]
 		player.rotation.y = deg_to_rad(view["yaw"])
 		player.head.rotation.x = deg_to_rad(view["pitch"])
 		for i in 10:
+			await get_tree().process_frame
+		if view.get("snow", false):
+			zone.hud._on_hit("snow") # justo antes de la captura, que la escarcha se desvanece
 			await get_tree().process_frame
 		await RenderingServer.frame_post_draw
 		var img := get_viewport().get_texture().get_image()

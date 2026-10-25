@@ -16,6 +16,7 @@ const DEFAULT_BINDINGS := {
 	"jump": {"key": KEY_SPACE},
 	"interact": {"key": KEY_E},
 	"throw": {"mouse": MOUSE_BUTTON_LEFT},
+	"push": {"mouse": MOUSE_BUTTON_RIGHT},
 	"pause": {"key": KEY_ESCAPE},
 }
 

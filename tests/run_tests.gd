@@ -22,6 +22,8 @@ func _run() -> void:
 	await _test_sack_rules()
 	await _test_money_and_upgrades()
 	await _test_automation()
+	await _test_pushes()
+	await _test_snowballs_and_lever()
 	print("\n%d pruebas correctas, %d fallos" % [_passes, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -328,4 +330,103 @@ func _test_automation() -> void:
 	var gifts_before := _items_of_kind("gift").size()
 	await _seconds(table.auto_wrap_time + 0.5)
 	check(_items_of_kind("gift").size() == gifts_before + 1, "la mesa envuelve sola, sin pulsar nada")
+	await _unload(zone)
+
+
+## Añade un elfo "remoto" de mentira (sin red) en una posición, para probar bromas.
+func _fake_player(zone: Node, id: int, pos: Vector3) -> Player:
+	var p: Player = zone._spawn_player({"id": id, "name": "Amigo%d" % id, "color": id % 4})
+	zone.get_node("Players").add_child(p)
+	p.global_position = pos
+	p.sync_position = pos
+	return p
+
+
+func _test_pushes() -> void:
+	print("Empujones")
+	var zone := await _load_zone()
+	var me: Player = _player(zone)
+	var pranks: Pranks = zone.pranks
+	me.global_position = Vector3(0, 0.1, 0)
+	var friend := _fake_player(zone, 2, Vector3(0, 0.1, 1.5))
+	var gift: Carryable = zone.get_node("TestZone/Items/Gift4")
+	gift.global_position = me.get_hold_transform().origin
+	gift.server_try_pick(1)
+	await _frames(3)
+	var hits := [0]
+	me.hit_received.connect(func(_k): hits[0] += 1)
+	check(pranks.server_push_player(2, 1), "un amigo te empuja")
+	check(gift.holder_peer == 0, "al recibir el empujón se te cae lo que llevas")
+	check(hits[0] == 1, "tu pantalla recibe el aviso del golpe")
+	await _frames(1)
+	check(Vector2(me.velocity.x, me.velocity.z).length() > 3.0, "sales despedido (%.1f m/s)" % Vector2(me.velocity.x, me.velocity.z).length())
+	check(me.velocity.z < 0, "en dirección contraria a quien empuja")
+	check(not pranks.can_push(2), "quien empuja tiene que esperar")
+	var other := _fake_player(zone, 3, me.global_position + Vector3(1, 0, 0))
+	check(not pranks.server_push_player(3, 1), "durante unos segundos eres inmune a otro empujón")
+	await _seconds(Pranks.IMMUNITY_TIME + 0.1)
+	other.global_position = me.global_position + Vector3(1, 0, 0)
+	other.sync_position = other.global_position
+	check(pranks.server_push_player(3, 1), "pasada la inmunidad te pueden volver a empujar")
+	friend.sync_position = Vector3(10, 0.1, 10)
+	await _seconds(Pranks.PUSH_COOLDOWN + 0.1)
+	check(not pranks.server_push_player(2, 1), "no se puede empujar desde lejos")
+	check(not pranks.server_push_player(1, 1), "no te puedes empujar a ti mismo")
+
+	var ball: Carryable = zone.get_node("TestZone/Items/Ball1")
+	ball.global_position = me.global_position + Vector3(0, 0.3, -1.2)
+	ball.linear_velocity = Vector3.ZERO
+	await _frames(2)
+	check(pranks.server_push_item(1, ball), "puedes empujar un objeto suelto")
+	check(ball.linear_velocity.length() > 3.0, "el objeto sale volando")
+	await _unload(zone)
+
+
+func _test_snowballs_and_lever() -> void:
+	print("Bolas de nieve y palanca")
+	var zone := await _load_zone()
+	var me: Player = _player(zone)
+	var pile = zone.get_node("TestZone/SnowPile")
+	me.global_position = pile.global_position + Vector3(0, 0, -1.5)
+	await _frames(2)
+	check(pile.server_use(me), "el montón de nieve responde a E")
+	await _frames(2)
+	check(me.interaction.held != null and me.interaction.held.kind == "snowball", "tienes una bola de nieve en las manos")
+	me.interaction.drop_held()
+	await _frames(1)
+
+	# Un amigo lanza una bola contra ti.
+	me.global_position = Vector3(0, 0.1, 0)
+	var friend := _fake_player(zone, 2, Vector3(0, 0.1, 4))
+	await _frames(2)
+	var ball: Carryable = zone.spawn_item(preload("res://scenes/items/snowball.tscn"), Vector3(0, 1.0, 3.2))
+	await _frames(1)
+	ball.server_try_pick(2)
+	await _frames(2)
+	var hits := [""]
+	me.hit_received.connect(func(k): hits[0] = k)
+	ball.server_release(2, Vector3(0, 1.0, -12))
+	await _seconds(0.6)
+	check(hits[0] == "snow", "la bola de nieve te da (escarcha en la pantalla)")
+	check(not is_instance_valid(ball), "la bola se deshace al golpear")
+
+	var dropped: Carryable = zone.spawn_item(preload("res://scenes/items/snowball.tscn"), Vector3(3, 0.5, 0))
+	await _frames(2)
+	dropped.server_try_pick(1)
+	dropped.server_release(1, Vector3.ZERO)
+	await _seconds(0.6)
+	check(is_instance_valid(dropped), "una bola soltada (no lanzada) no se rompe")
+
+	var conveyor = zone.get_node("TestZone/Workshop/Conveyor")
+	var lever = zone.get_node("TestZone/Workshop/ConveyorLever")
+	check(not lever.visible, "la palanca no aparece sin cinta")
+	zone.state.money = 500
+	zone.state.server_buy(Upgrades.CONVEYOR)
+	await _frames(1)
+	check(lever.visible, "con la cinta aparece la palanca")
+	check(lever.server_use(me), "se puede tirar de la palanca")
+	check(conveyor.reversed, "la cinta va al revés")
+	check(not lever.server_use(me), "la palanca tarda en recargarse")
+	await _seconds(lever.reverse_seconds + 0.3)
+	check(not conveyor.reversed, "la cinta vuelve a ir bien sola")
 	await _unload(zone)

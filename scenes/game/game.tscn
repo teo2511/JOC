@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" path="res://scenes/test/test_zone.tscn" id="2_level"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="3_hud"]
 [ext_resource type="Script" path="res://scripts/game/workshop_state.gd" id="4_state"]
+[ext_resource type="Script" path="res://scripts/game/pranks.gd" id="5_pranks"]
 
 [sub_resource type="SceneReplicationConfig" id="Repl_state"]
 properties/0/path = NodePath(".:gifts_in_sack")
@@ -33,7 +34,7 @@ script = ExtResource("1_game")
 spawn_path = NodePath("../Players")
 
 [node name="ItemSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://scenes/items/gift_box.tscn", "res://scenes/items/toy_ball.tscn", "res://scenes/items/wood_block.tscn", "res://scenes/items/toy_car.tscn")
+_spawnable_scenes = PackedStringArray("res://scenes/items/gift_box.tscn", "res://scenes/items/toy_ball.tscn", "res://scenes/items/wood_block.tscn", "res://scenes/items/toy_car.tscn", "res://scenes/items/snowball.tscn")
 spawn_path = NodePath("../TestZone/Items")
 
 [node name="State" type="Node" parent="."]
@@ -41,5 +42,8 @@ script = ExtResource("4_state")
 
 [node name="StateSync" type="MultiplayerSynchronizer" parent="State"]
 replication_config = SubResource("Repl_state")
+
+[node name="Pranks" type="Node" parent="."]
+script = ExtResource("5_pranks")
 
 [node name="HUD" parent="." instance=ExtResource("3_hud")]

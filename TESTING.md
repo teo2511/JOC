@@ -66,6 +66,29 @@ la mesa, la mesa automática envuelve sin pulsar.
 monedas al equipo, el cliente ve el dinero, compra la cinta desde el tablón, se descuenta del dinero
 común, ve aparecer la cinta y el aviso con su nombre.
 
+### Resultado del 25-oct-2026, Fase 7
+
+`tests/run_tests.tscn`: **96 correctas, 0 fallos**. Nuevas: un amigo te empuja, se te cae lo que
+llevas, sales despedido en dirección contraria, recarga del empujón, inmunidad y su fin, no se empuja
+desde lejos ni a uno mismo, empujar un objeto suelto, el montón de nieve da bolas, una bola lanzada
+golpea y se deshace, una soltada no, la palanca solo aparece con cinta, invierte la cinta, recarga
+y la cinta vuelve sola a ir bien.
+
+`tools/run_net_test.sh`, 3 veces seguidas: **anfitrión 27/27, cliente 34/34**. Nuevas: el cliente
+empuja al anfitrión (al anfitrión se le cae el regalo y sale despedido unos 2 m), el anfitrión le
+devuelve el empujón y el cliente sale despedido en su propia pantalla, el anfitrión le lanza una
+bola de nieve que le da, se deshace, y el cliente ve la escarcha.
+
+Captura `nieve`: montón de nieve, bolas y la escarcha en pantalla.
+
+## Pruebas manuales: Fase 7 (pendiente, las hace teo con amigos)
+
+1. Empuja a un amigo con clic derecho mientras lleva algo: se le cae y sale despedido.
+2. Intenta empujarle otra vez enseguida: no deja (recarga e inmunidad).
+3. Ve al montón de nieve (detrás de donde apareces, a la derecha), coge una bola y lánzasela.
+4. Compra la cinta y tira de la palanca roja mientras otro usa la cinta.
+5. ¿Es divertido o molesta demasiado? ¿Empujón muy fuerte o muy flojo?
+
 ## Pruebas manuales: Fase 6 (pendiente, las hace teo)
 
 1. Mete un par de regalos en el saco: arriba suben las monedas.

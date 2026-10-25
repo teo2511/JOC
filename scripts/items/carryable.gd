@@ -15,7 +15,7 @@ signal holder_changed(old_peer: int, new_peer: int)
 ## Nombre que aparece en el aviso de interacción ("[E] Coger Regalo").
 @export var display_name := "Objeto"
 ## Qué es en la cadena de producción: "material", "toy" (juguete sin envolver) o "gift".
-@export_enum("material", "toy", "gift", "other") var kind := "other"
+@export_enum("material", "toy", "gift", "snowball", "other") var kind := "other"
 ## Altura por debajo de la cual el objeto vuelve a su punto de aparición.
 @export var respawn_below_y := -10.0
 

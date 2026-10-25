@@ -6,7 +6,7 @@ mejoráis el taller y repartís los regalos, mientras os empujáis y os robáis 
 
 - Motor: **Godot 4.6** (versión estándar, no .NET). Lenguaje: **GDScript**.
 - Plataforma: Windows primero, publicación prevista en Steam.
-- Estado: **Fase 6**, cadena de producción con dinero común, mejoras y automatización. Ver [TASKS.md](TASKS.md).
+- Estado: **Fase 7**, cadena de producción con mejoras, y bromas entre elfos (empujones, bolas de nieve, palanca de la cinta). Ver [TASKS.md](TASKS.md).
 
 ## Cómo abrirlo
 
@@ -40,6 +40,14 @@ mejoráis el taller y repartís los regalos, mientras os empujáis y os robáis 
    izquierda) mira un botón y pulsa E para comprar con el dinero común. Botón verde = te llega,
    gris = falta dinero, dorado = al máximo. Mejoras: Fábrica rápida, Fábrica grande, Botas de elfo,
    Cinta transportadora (lleva los juguetes a la mesa) y Envolvedora automática.
+6. **Bromas (nadie sale herido):**
+   - **Empujón:** clic derecho con un elfo delante. Se le cae lo que lleva y sale despedido un poco.
+     Después tienes que esperar 1,5 s, y quien lo recibe es inmune 2 s.
+   - **Bolas de nieve:** coge una del montón blanco que hay detrás de donde apareces (E) y lánzala (clic izquierdo).
+     Si da a otro elfo, se le cae lo que lleva y ve escarcha en la pantalla.
+   - **Palanca de la cinta:** cuando el equipo compra la cinta, aparece una palanca al lado.
+     Tirar de ella pone la cinta al revés 4 segundos (recarga en 12 s).
+   - Clic derecho mirando un objeto suelto le da un empujón.
 
 ## Controles
 
@@ -49,6 +57,7 @@ mejoráis el taller y repartís los regalos, mientras os empujáis y os robáis 
 | Saltar | Espacio |
 | Coger / soltar / usar | E |
 | Lanzar lo que llevas | Clic izquierdo |
+| Empujar a un elfo o un objeto | Clic derecho |
 | Opciones (sensibilidad, invertir eje Y, volumen) | Esc |
 
 Las opciones se guardan automáticamente.
