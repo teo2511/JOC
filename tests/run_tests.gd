@@ -18,6 +18,8 @@ func _run() -> void:
 	await _test_single_holder()
 	await _test_spawn_button()
 	await _test_respawn_on_fall()
+	await _test_production_chain()
+	await _test_sack_rules()
 	print("\n%d pruebas correctas, %d fallos" % [_passes, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -166,4 +168,92 @@ func _test_respawn_on_fall() -> void:
 	await _frames(3)
 	check(ball.global_position.distance_to(ball_spawn) < 0.5, "un objeto que cae del mapa reaparece")
 	check(player.global_position.y > -1.0, "un elfo que cae del mapa reaparece")
+	await _unload(zone)
+
+
+func _seconds(t: float) -> void:
+	await get_tree().create_timer(t).timeout
+
+
+func _items_of_kind(kind: String) -> Array:
+	return get_tree().get_nodes_in_group("carryable").filter(
+		func(i): return i.kind == kind and i.is_available())
+
+
+func _test_production_chain() -> void:
+	print("Cadena de producción")
+	var zone := await _load_zone()
+	var player: Player = _player(zone)
+	var bin = zone.get_node("TestZone/Workshop/MaterialBin")
+	var machine = zone.get_node("TestZone/Workshop/ToyMachine")
+	var table = zone.get_node("TestZone/Workshop/WrapTable")
+	var sack = zone.get_node("TestZone/Workshop/SantaSack")
+	var state: WorkshopState = zone.state
+
+	player.global_position = bin.global_position + Vector3(0, 0, 1.5)
+	await _frames(2)
+	check(bin.server_use(player), "la caja de madera responde a E")
+	await _frames(2)
+	check(player.interaction.held != null and player.interaction.held.kind == "material", "la madera aparece en las manos")
+	var wood: Carryable = player.interaction.held
+	wood.server_release(1, Vector3.ZERO)
+	await _frames(1)
+	wood.global_position = machine.global_position + Vector3(0, 1.8, 0)
+	await _seconds(0.5)
+	check(machine.queued == 1 and not is_instance_valid(wood), "la fábrica se traga la madera")
+	check(machine.working, "la fábrica está trabajando")
+	var toys_before := _items_of_kind("toy").size()
+	await _seconds(machine.craft_time + 0.3)
+	var toys := _items_of_kind("toy")
+	check(toys.size() == toys_before + 1, "sale un juguete de la fábrica")
+	check(machine.queued == 0 and machine.status_text == "Esperando madera", "la fábrica vuelve a esperar")
+
+	var toy: Carryable = toys.filter(func(t): return t.name.begins_with("ToyCar"))[0]
+	toy.global_position = table.global_position + Vector3(0, 1.2, 0)
+	toy.linear_velocity = Vector3.ZERO
+	await _seconds(0.6)
+	check(table.has_toy, "la mesa detecta el juguete")
+	var gifts_before := _items_of_kind("gift").size()
+	for i in table.presses_needed:
+		table.server_use(player)
+		await _seconds(table.cooldown + 0.05)
+	check(not is_instance_valid(toy), "el juguete se ha envuelto")
+	var gifts := _items_of_kind("gift")
+	check(gifts.size() == gifts_before + 1, "aparece un regalo en la mesa")
+
+	var gift: Carryable = gifts.filter(func(g): return g.global_position.distance_to(table.global_position) < 2.0)[0]
+	gift.global_position = sack.global_position + Vector3(0, 1.3, 0)
+	gift.linear_velocity = Vector3.ZERO
+	await _seconds(0.4)
+	check(state.gifts_in_sack == 1, "el saco cuenta el regalo")
+	check(not is_instance_valid(gift), "el regalo desaparece dentro del saco")
+	await _unload(zone)
+
+
+func _test_sack_rules() -> void:
+	print("Reglas del saco")
+	var zone := await _load_zone()
+	var sack = zone.get_node("TestZone/Workshop/SantaSack")
+	var state: WorkshopState = zone.state
+	var gift: Carryable = zone.get_node("TestZone/Items/Gift4")
+	check(gift.server_try_pick(1), "alguien coge un regalo")
+	check(not gift.server_consume(), "un regalo en las manos no se puede gastar")
+	gift.server_release(1, Vector3.ZERO)
+	check(gift.server_consume(), "un regalo libre se gasta")
+	check(not gift.server_consume(), "el mismo regalo no se gasta dos veces")
+
+	var ball: Carryable = zone.get_node("TestZone/Items/Ball1")
+	ball.global_position = sack.global_position + Vector3(0, 1.3, 0)
+	ball.linear_velocity = Vector3.ZERO
+	await _seconds(0.5)
+	check(is_instance_valid(ball) and state.gifts_in_sack == 0, "el saco no cuenta lo que no es un regalo")
+	check(ball.global_position.distance_to(sack.global_position) > 1.0, "el saco lo escupe fuera")
+
+	var reached := [false]
+	state.goal_reached.connect(func(): reached[0] = true)
+	state.goal = 2
+	state.server_add_gift()
+	check(not reached[0], "1/2 aún no completa el objetivo")
+	state.server_add_gift()
+	check(reached[0] and state.is_complete(), "2/2 completa el objetivo")
 	await _unload(zone)

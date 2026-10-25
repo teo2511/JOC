@@ -44,7 +44,26 @@ veces seguidas, siempre **anfitrión 14/14 y cliente 17/17**:
 **Qué no cubre:** Internet real (latencia, pérdida de paquetes), Windows, 3-4 jugadores,
 el anfitrión cerrando con clientes dentro, reconexión.
 
-## Pruebas manuales: Fase 4 (pendiente, las hace teo)
+### Resultado del 25-oct-2026, Fase 5
+
+`tests/run_tests.tscn`: **53 correctas, 0 fallos**. Nuevas: la caja da madera en las manos, la
+fábrica se traga la madera y saca un juguete en 3 s, la mesa envuelve con 3 pulsaciones, el saco
+cuenta el regalo y lo hace desaparecer, un regalo en las manos no se gasta, el mismo regalo no
+cuenta dos veces, el saco escupe lo que no es regalo, el objetivo se completa al llegar a 10.
+
+`tools/run_net_test.sh`, 3 veces seguidas: **anfitrión 17/17, cliente 22/22**. Nuevas: el cliente
+saca madera de la caja y la recibe en las manos, ve la fábrica trabajando, ve el saco con 1 regalo
+y su pantalla muestra "Saco: 1 / 10".
+
+## Pruebas manuales: Fase 5 (pendiente, las hace teo)
+
+1. Coge madera de la caja marrón (E) y échala por el embudo de la fábrica azul.
+2. Espera el coche rojo, ponlo en la mesa roja y pulsa E tres veces mirando la mesa.
+3. Echa el regalo en el saco: el contador de arriba sube y el saco crece.
+4. Echa una pelota en el saco: debe salir disparada.
+5. Con un amigo: repartíos las tareas. ¿Se entiende sin explicarlo? ¿Algún paso aburre?
+
+## Pruebas manuales: Fase 4 (hechas por teo el 25-oct: "va bastante bien la conexión")
 
 1. Dos ventanas en tu PC (ver README, "Jugar online"). En la primera aparece "Elfos 2/4".
 2. Mueve un elfo: en la otra ventana se ve moverse suave, con su nombre encima.

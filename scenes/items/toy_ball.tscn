@@ -33,6 +33,7 @@ properties/2/replication_mode = 1
 mass = 0.6
 physics_material_override = SubResource("PhysMat_ball")
 script = ExtResource("1_carry")
+kind = "toy"
 display_name = "Pelota"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

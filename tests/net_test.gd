@@ -91,6 +91,18 @@ func _run_host() -> void:
 	# Botón: lo pulsa el cliente; el regalo nuevo debe existir en ambos.
 	check(await wait_for(func(): return item("GiftBox") != null), "el cliente pulsa el botón y aparece un regalo nuevo")
 
+	# Taller: el cliente coge madera de la caja; el anfitrión alimenta la fábrica y llena el saco.
+	var game: Game = main.get_game()
+	check(await wait_for(func(): return get_tree().get_nodes_in_group("carryable").any(
+		func(i): return i.kind == "material" and i.holder_peer == client_id)), "el cliente saca madera de la caja")
+	var machine = game.get_node("TestZone/Workshop/ToyMachine")
+	game.spawn_item(preload("res://scenes/items/wood_block.tscn"), machine.global_position + Vector3(0, 1.8, 0))
+	check(await wait_for(func(): return machine.working), "la fábrica empieza a trabajar")
+	var sack = game.get_node("TestZone/Workshop/SantaSack")
+	gift.global_position = sack.global_position + Vector3(0, 1.3, 0)
+	gift.linear_velocity = Vector3.ZERO
+	check(await wait_for(func(): return game.state.gifts_in_sack == 1), "el regalo entra en el saco")
+
 	check(await wait_for(func(): return Network.players.size() == 1, 20.0), "el cliente sale de la partida")
 	await wait_seconds(0.3)
 	check(main.get_game().get_node("Players").get_child_count() == 1, "su elfo desaparece")
@@ -141,6 +153,19 @@ func _run_client() -> void:
 	check(await wait_for(func(): return me.interaction._focused == button, 3.0), "mira el botón")
 	me.interaction.interact()
 	check(await wait_for(func(): return item("GiftBox") != null), "ve aparecer el regalo creado por el botón")
+
+	# Taller.
+	var bin = game.get_node("TestZone/Workshop/MaterialBin")
+	me.global_position = bin.global_position + Vector3(0, 0, 1.5)
+	me.head.rotation.x = deg_to_rad(-25)
+	await wait_seconds(0.3)
+	check(await wait_for(func(): return me.interaction._focused == bin, 3.0), "mira la caja de madera")
+	me.interaction.interact()
+	check(await wait_for(func(): return me.interaction.held != null and me.interaction.held.kind == "material"), "recibe madera en las manos")
+	var machine = game.get_node("TestZone/Workshop/ToyMachine")
+	check(await wait_for(func(): return machine.working and machine.status_text.begins_with("Fabricando")), "ve la fábrica trabajando")
+	check(await wait_for(func(): return game.state.gifts_in_sack == 1), "ve el saco con 1 regalo")
+	check(game.hud.sack_counter.text == "Saco: 1 / 10", "su pantalla muestra Saco: 1 / 10")
 
 	await wait_seconds(0.5)
 	Network.leave()

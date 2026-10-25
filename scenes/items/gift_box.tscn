@@ -40,6 +40,7 @@ properties/2/replication_mode = 1
 mass = 1.5
 physics_material_override = SubResource("PhysMat_gift")
 script = ExtResource("1_carry")
+kind = "gift"
 display_name = "Regalo"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

@@ -15,9 +15,11 @@ const SPAWN_ORIGIN := Vector3(0, 0.1, 3)
 @onready var player_spawner: MultiplayerSpawner = $PlayerSpawner
 @onready var items_root: Node3D = $TestZone/Items
 @onready var hud = $HUD
+@onready var state: WorkshopState = $State
 
 
 func _ready() -> void:
+	add_to_group("game")
 	player_spawner.spawn_function = _spawn_player
 	_take_over_placed_items()
 	if multiplayer.is_server():
@@ -45,6 +47,15 @@ func _take_over_placed_items() -> void:
 
 
 # --- Solo en el anfitrión ---
+
+## Crea un objeto nuevo en el taller (el ItemSpawner lo envía a todos).
+func spawn_item(scene: PackedScene, global_pos: Vector3, velocity := Vector3.ZERO) -> Carryable:
+	var item: Carryable = scene.instantiate()
+	item.position = items_root.to_local(global_pos)
+	items_root.add_child(item, true)
+	item.linear_velocity = velocity
+	return item
+
 
 func _on_player_registered(id: int) -> void:
 	if Player.find(get_tree(), id) != null:
