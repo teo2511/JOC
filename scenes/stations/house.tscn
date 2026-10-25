@@ -1,0 +1,114 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="Script" path="res://scripts/stations/house.gd" id="1_house"]
+
+[sub_resource type="BoxShape3D" id="Shape_body"]
+size = Vector3(3, 2.2, 3)
+
+[sub_resource type="StandardMaterial3D" id="Mat_walls"]
+albedo_color = Color(0.72, 0.36, 0.28, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="Mesh_body"]
+material = SubResource("Mat_walls")
+size = Vector3(3, 2.2, 3)
+
+[sub_resource type="ConvexPolygonShape3D" id="Shape_roof"]
+points = PackedVector3Array(-1.7, -0.6, -1.7, 1.7, -0.6, -1.7, -1.7, -0.6, 1.7, 1.7, -0.6, 1.7, 0, 0.6, -1.7, 0, 0.6, 1.7)
+
+[sub_resource type="StandardMaterial3D" id="Mat_roof"]
+albedo_color = Color(0.95, 0.97, 1, 1)
+roughness = 0.6
+
+[sub_resource type="PrismMesh" id="Mesh_roof"]
+material = SubResource("Mat_roof")
+size = Vector3(3.4, 1.2, 3.4)
+
+[sub_resource type="BoxShape3D" id="Shape_chimney"]
+size = Vector3(0.8, 1.8, 0.8)
+
+[sub_resource type="StandardMaterial3D" id="Mat_chimney"]
+albedo_color = Color(0.45, 0.2, 0.16, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_chimney"]
+material = SubResource("Mat_chimney")
+size = Vector3(0.8, 1.8, 0.8)
+
+[sub_resource type="BoxShape3D" id="Shape_mouth"]
+size = Vector3(1.6, 1.4, 1.6)
+
+[sub_resource type="StandardMaterial3D" id="Mat_windows"]
+albedo_color = Color(0.25, 0.25, 0.35, 1)
+emission_enabled = true
+emission = Color(1, 0.8, 0.35, 1)
+emission_energy_multiplier = 0.0
+
+[sub_resource type="BoxMesh" id="Mesh_windows"]
+material = SubResource("Mat_windows")
+size = Vector3(2.4, 0.5, 0.05)
+
+[sub_resource type="StandardMaterial3D" id="Mat_door"]
+albedo_color = Color(0.2, 0.4, 0.22, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_door"]
+material = SubResource("Mat_door")
+size = Vector3(0.7, 1.3, 0.05)
+
+[sub_resource type="SceneReplicationConfig" id="Repl_house"]
+properties/0/path = NodePath(".:received")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+
+[node name="House" type="StaticBody3D"]
+script = ExtResource("1_house")
+title = "CASA"
+
+[node name="BodyShape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+shape = SubResource("Shape_body")
+
+[node name="BodyMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+mesh = SubResource("Mesh_body")
+
+[node name="RoofShape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 0)
+shape = SubResource("Shape_roof")
+
+[node name="RoofMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 0)
+mesh = SubResource("Mesh_roof")
+
+[node name="ChimneyShape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 3.3, 0)
+shape = SubResource("Shape_chimney")
+
+[node name="ChimneyMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 3.3, 0)
+mesh = SubResource("Mesh_chimney")
+
+[node name="Chimney" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Chimney"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 4.7, 0)
+shape = SubResource("Shape_mouth")
+
+[node name="Windows" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55, 1.52)
+mesh = SubResource("Mesh_windows")
+
+[node name="Door" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.65, 1.53)
+mesh = SubResource("Mesh_door")
+
+[node name="Label" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.8, 0)
+billboard = 1
+outline_size = 10
+font_size = 44
+pixel_size = 0.008
+
+[node name="Sync" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("Repl_house")

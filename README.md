@@ -6,7 +6,7 @@ mejoráis el taller y repartís los regalos, mientras os empujáis y os robáis 
 
 - Motor: **Godot 4.6** (versión estándar, no .NET). Lenguaje: **GDScript**.
 - Plataforma: Windows primero, publicación prevista en Steam.
-- Estado: **Fase 7**, cadena de producción con mejoras, y bromas entre elfos (empujones, bolas de nieve, palanca de la cinta). Ver [TASKS.md](TASKS.md).
+- Estado: **Fase 8**, cadena de producción con mejoras, bromas entre elfos y reparto de regalos por las chimeneas del patio. Ver [TASKS.md](TASKS.md).
 
 ## Cómo abrirlo
 
@@ -34,7 +34,7 @@ mejoráis el taller y repartís los regalos, mientras os empujáis y os robáis 
 2. **Fábrica de juguetes:** echa la madera por el embudo de arriba (lánzala o suéltala encima).
    En 3 segundos sale un coche de juguete por la rampa. Caben 3 bloques en cola.
 3. **Mesa de envolver:** deja el juguete encima y pulsa E tres veces mirando la mesa.
-4. **Saco de Santa:** echa el regalo dentro. Con 10 regalos se completa la noche.
+4. **Saco de Santa:** echa el regalo dentro. Con 10 regalos el saco está lleno y llega el trineo.
    Si echas algo que no es un regalo, el saco lo escupe.
 5. **Monedas y mejoras:** cada regalo da 10 monedas al equipo. En el **tablón de mejoras** (pared
    izquierda) mira un botón y pulsa E para comprar con el dinero común. Botón verde = te llega,
@@ -48,6 +48,12 @@ mejoráis el taller y repartís los regalos, mientras os empujáis y os robáis 
    - **Palanca de la cinta:** cuando el equipo compra la cinta, aparece una palanca al lado.
      Tirar de ella pone la cinta al revés 4 segundos (recarga en 12 s).
    - Clic derecho mirando un objeto suelto le da un empujón.
+7. **Reparto:** con el saco lleno, el trineo de Santa aparece en el **patio** (sal por la puerta
+   de la pared derecha del taller). Mira el trineo y pulsa E para coger un regalo. Lánzalo por la
+   **chimenea** de una casita (apunta bastante hacia arriba). Cada casa pide 2 o 3 regalos y da las
+   gracias encendiendo las ventanas. Cada regalo entregado da 5 monedas más. Cuando todas las casas
+   tienen los suyos, el trineo se va y empieza la noche siguiente. Los regalos del trineo no se
+   pueden volver a meter en el saco.
 
 ## Controles
 

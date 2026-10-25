@@ -78,3 +78,15 @@ Estados: **Hecho** (implementado y probado), **Implementado** (falta probarlo a 
 - [ ] Sonidos de empujón, golpe de nieve y palanca (Fase 10). **Pendiente**
 - [ ] Animación del empujón (ahora el elfo solo sale despedido). **Pendiente**
 - [ ] Ajustar fuerza, recarga e inmunidad tras jugar con amigos (que moleste, pero no frustre). **Pendiente**
+
+## Fase 8. Reparto navideño
+
+- [x] Patio nevado detrás de una puerta en la pared este del taller, con 4 casitas. **Hecho** (captura)
+- [x] Trineo fijo: aparece al llenarse el saco, se lleva sus regalos y te da uno con E. **Hecho** (tests y red)
+- [x] Chimeneas: cuentan los regalos que entran (también lanzados desde el suelo), cada casa pide 2-3, escupen lo que sobra y fuera del reparto. **Hecho** (tests y red)
+- [x] 5 monedas extra por regalo entregado. Los regalos del trineo no valen en el saco (no se cobra dos veces). **Hecho** (tests)
+- [x] Fin del reparto: aviso, el trineo se va, las casas se reinician, lo que sobra vuelve al saco y sube la noche. **Hecho** (tests y red)
+- [x] HUD: "Noche N", y durante el reparto "Reparto: x / 10" y regalos en el trineo. **Hecho** (red y captura)
+- [ ] Flecha o indicador hacia el patio cuando llega el trineo. **Pendiente** (valorar tras probar)
+- [ ] Animación del trineo llegando y sonido de cascabeles (Fase 10). **Pendiente**
+- [ ] Tiempo límite de reparto y resultados de la noche (Fase 9). **Pendiente**

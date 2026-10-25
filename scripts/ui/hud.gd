@@ -36,7 +36,7 @@ func _ready() -> void:
 	var state := get_parent().get_node_or_null("State") as WorkshopState
 	if state:
 		state.changed.connect(_update_sack.bind(state))
-		state.goal_reached.connect(_show_banner.bind("¡Saco lleno! Noche completada"))
+		state.announced.connect(_show_banner)
 		state.upgrade_bought.connect(func(index, buyer):
 			_show_banner("¡%s ha comprado %s!" % [buyer, Upgrades.LIST[index]["name"]]))
 		_update_sack(state)
@@ -88,7 +88,15 @@ func _on_leave_pressed() -> void:
 
 
 func _update_sack(state: WorkshopState) -> void:
-	sack_counter.text = "Saco: %d / %d     Monedas: %d" % [state.gifts_in_sack, state.goal, state.money]
+	if state.delivering:
+		var wanted := 0
+		for house in get_tree().get_nodes_in_group("house"):
+			wanted += house.wanted
+		sack_counter.text = "Noche %d     Reparto: %d / %d     Trineo: %d     Monedas: %d" % [
+			state.night, state.delivered, wanted, state.sleigh_gifts, state.money]
+	else:
+		sack_counter.text = "Noche %d     Saco: %d / %d     Monedas: %d" % [
+			state.night, state.gifts_in_sack, state.goal, state.money]
 
 
 func _show_banner(text: String) -> void:

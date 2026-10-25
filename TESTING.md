@@ -81,6 +81,33 @@ bola de nieve que le da, se deshace, y el cliente ve la escarcha.
 
 Captura `nieve`: montón de nieve, bolas y la escarcha en pantalla.
 
+### Resultado del 25-oct-2026, Fase 8
+
+`tests/run_tests.tscn`: **117 correctas, 0 fallos**. Nuevas: las casas piden tantos regalos como el
+saco, no hay trineo ni reparto antes de llenar el saco, al llenarlo llega el trineo con los regalos,
+el trineo da un regalo en las manos (y no otro si las tienes ocupadas), el saco no acepta regalos
+del trineo, **un regalo lanzado desde el suelo con el lanzamiento normal entra por la chimenea**
+(mirando 50° hacia arriba a 4 m), 5 monedas por entrega, la casa da las gracias y escupe lo que
+sobra, al servir todas se va el trineo, sube la noche, las casas se reinician y lo sobrante vuelve
+al saco.
+
+`tools/run_net_test.sh`, 4 veces seguidas tras corregir una carrera del propio test: **anfitrión 32/32,
+cliente 41/41**. Nuevas: el saco lleno trae el trineo, el cliente lo ve, lo mira, saca un regalo,
+lo suelta, el anfitrión lo mete por la chimenea, el cliente ve la casa con "1 / 3 regalos" y
+"Reparto: 1 / 10" en su pantalla, y luego la noche 2 y el aviso de reparto completado.
+(La carrera: el anfitrión completaba las demás casas tan rápido que a veces el cliente no llegaba
+a ver el estado "1 / 3". El test espera ahora 1,5 s; el juego no cambia.)
+
+Capturas `patio` y `chimenea`.
+
+## Pruebas manuales: Fase 8 (pendiente, las hace teo con amigos)
+
+1. Llenad el saco (10 regalos): aviso y el trineo aparece en el patio (puerta de la pared derecha).
+2. Coged regalos del trineo con E y lanzadlos por las chimeneas. ¿Cuesta demasiado acertar?
+3. Una casa con sus regalos enciende las ventanas y dice "¡Gracias!".
+4. Con todas servidas: aviso de reparto completado y "Noche 2" arriba.
+5. ¿Se entiende adónde hay que ir cuando llega el trineo?
+
 ## Pruebas manuales: Fase 7 (pendiente, las hace teo con amigos)
 
 1. Empuja a un amigo con clic derecho mientras lleva algo: se le cae y sale despedido.

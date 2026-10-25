@@ -37,6 +37,8 @@ var sync_rotation := Quaternion.IDENTITY
 
 ## true en cuanto una estación lo ha usado: ya no cuenta para nada más.
 var consumed := false
+## Solo en el anfitrión: regalo sacado del trineo. El saco no lo acepta (no se cobra dos veces).
+var from_sleigh := false
 
 var _spawn_transform: Transform3D
 var _mesh: MeshInstance3D

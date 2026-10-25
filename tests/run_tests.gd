@@ -24,6 +24,7 @@ func _run() -> void:
 	await _test_automation()
 	await _test_pushes()
 	await _test_snowballs_and_lever()
+	await _test_delivery()
 	print("\n%d pruebas correctas, %d fallos" % [_passes, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -430,3 +431,113 @@ func _test_snowballs_and_lever() -> void:
 	await _seconds(lever.reverse_seconds + 0.3)
 	check(not conveyor.reversed, "la cinta vuelve a ir bien sola")
 	await _unload(zone)
+
+
+## Deja caer un regalo nuevo en la chimenea de una casa.
+func _drop_in_chimney(zone: Node, house: Node3D) -> Carryable:
+	var mouth: Node3D = house.get_node("Chimney/CollisionShape3D")
+	var gift: Carryable = zone.spawn_item(preload("res://scenes/items/gift_box.tscn"), mouth.global_position)
+	await _seconds(0.4)
+	return gift
+
+
+func _test_delivery() -> void:
+	print("Reparto")
+	var zone := await _load_zone()
+	var me: Player = _player(zone)
+	var state: WorkshopState = zone.state
+	var sleigh = zone.get_node("TestZone/Yard/Sleigh")
+	var sack = zone.get_node("TestZone/Workshop/SantaSack")
+	var houses: Array = [1, 2, 3, 4].map(func(n): return zone.get_node("TestZone/Yard/House%d" % n))
+	var wanted := 0
+	for h in houses:
+		wanted += h.wanted
+	check(wanted == state.goal, "las casas piden tantos regalos como caben en el saco (%d)" % wanted)
+	check(not sleigh.visible, "el trineo no está hasta que se llena el saco")
+	var early := await _drop_in_chimney(zone, houses[0])
+	check(is_instance_valid(early) and not early.consumed and houses[0].received == 0, "antes del reparto la chimenea no acepta regalos")
+	early.queue_free()
+
+	var banners: Array[String] = []
+	state.announced.connect(func(t): banners.append(t))
+	for i in state.goal:
+		state.server_add_gift()
+	await _frames(2)
+	check(state.delivering and sleigh.visible, "con el saco lleno llega el trineo")
+	check(state.sleigh_gifts == state.goal and state.gifts_in_sack == 0, "los regalos del saco pasan al trineo")
+	check(banners.any(func(t): return t.contains("trineo")), "aviso: el trineo ha llegado")
+
+	me.global_position = sleigh.global_position + Vector3(0, 0, 2)
+	await _frames(2)
+	check(sleigh.server_use(me), "el trineo responde a E")
+	await _frames(2)
+	var gift: Carryable = me.interaction.held
+	check(gift != null and gift.kind == "gift", "el trineo te da un regalo en las manos")
+	check(state.sleigh_gifts == state.goal - 1, "queda uno menos en el trineo")
+	await _seconds(0.4) # recarga del trineo
+	sleigh.server_use(me)
+	await _frames(2)
+	check(state.sleigh_gifts == state.goal - 1, "con las manos ocupadas no te da otro")
+
+	# Llevar el regalo del trineo al saco no vale: lo escupe.
+	gift.server_release(1, Vector3.ZERO)
+	await _frames(1)
+	gift.global_position = sack.global_position + Vector3(0, 1.3, 0)
+	gift.linear_velocity = Vector3.ZERO
+	await _seconds(0.5)
+	check(not gift.consumed and state.gifts_in_sack == 0, "el saco no acepta regalos que ya salieron del trineo")
+
+	# Lanzarlo a la chimenea desde el suelo, con el lanzamiento normal del jugador. Se prueba
+	# con varias inclinaciones de cabeza, como haría alguien que no ha jugado nunca.
+	var house: Node3D = houses[0]
+	var mouth: Node3D = house.get_node("Chimney/CollisionShape3D")
+	var money_before := state.money
+	var hit_pitch := -1
+	for pitch in range(20, 75, 5):
+		me.global_position = Vector3(mouth.global_position.x, 0.1, mouth.global_position.z + 4.0)
+		me.velocity = Vector3.ZERO
+		me.rotation = Vector3.ZERO # mirando hacia -Z, hacia la casa
+		me.head.rotation.x = deg_to_rad(pitch)
+		gift.global_position = me.global_position + Vector3(0, 0.6, -0.6)
+		gift.linear_velocity = Vector3.ZERO
+		await _frames(2)
+		gift.server_try_pick(1)
+		await _frames(3)
+		me.interaction.throw_held()
+		if await _wait_until(func(): return house.received == 1, 1.6):
+			hit_pitch = pitch
+			break
+	check(hit_pitch > 0, "un regalo lanzado desde el suelo entra por la chimenea (mirando %d° hacia arriba)" % hit_pitch)
+	check(state.money == money_before + WorkshopState.DELIVERY_VALUE, "cada regalo entregado da %d monedas" % WorkshopState.DELIVERY_VALUE)
+	check(state.delivered == 1, "cuenta un regalo entregado")
+
+	var small: Node3D = houses[1]
+	for i in small.wanted:
+		await _drop_in_chimney(zone, small)
+	check(small.is_satisfied() and small.status_text == "¡Gracias!", "la casa da las gracias al tener sus regalos")
+	var extra := await _drop_in_chimney(zone, small)
+	check(is_instance_valid(extra) and not extra.consumed, "una casa servida escupe los regalos que sobran")
+	extra.queue_free()
+
+	var night_before := state.night
+	for h in houses:
+		for i in h.wanted - h.received:
+			await _drop_in_chimney(zone, h)
+	await _frames(2)
+	check(not state.delivering and not sleigh.visible, "con todas las casas servidas el trineo se va")
+	check(state.night == night_before + 1, "empieza la noche siguiente")
+	check(houses.all(func(h): return h.received == 0), "las casas vuelven a pedir regalos")
+	# Del trineo solo salió un regalo: los otros 9 vuelven al saco.
+	check(state.sleigh_gifts == 0 and state.gifts_in_sack == state.goal - 1, "lo que sobraba en el trineo vuelve al saco")
+	check(banners.any(func(t): return t.contains("Reparto completado")), "aviso: reparto completado")
+	await _unload(zone)
+
+
+func _wait_until(cond: Callable, timeout: float) -> bool:
+	var end := Time.get_ticks_msec() + int(timeout * 1000)
+	while Time.get_ticks_msec() < end:
+		if cond.call():
+			return true
+		await get_tree().physics_frame
+	return cond.call()
+
