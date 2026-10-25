@@ -1,0 +1,190 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="2_hud"]
+[ext_resource type="PackedScene" path="res://scenes/items/gift_box.tscn" id="3_gift"]
+[ext_resource type="PackedScene" path="res://scenes/items/toy_ball.tscn" id="4_ball"]
+[ext_resource type="Script" path="res://scripts/props/gift_spawner_button.gd" id="5_button"]
+
+[sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]
+sky_top_color = Color(0.32, 0.45, 0.72, 1)
+sky_horizon_color = Color(0.75, 0.8, 0.9, 1)
+ground_horizon_color = Color(0.75, 0.8, 0.9, 1)
+
+[sub_resource type="Sky" id="Sky_main"]
+sky_material = SubResource("Sky_mat")
+
+[sub_resource type="Environment" id="Env_main"]
+background_mode = 2
+sky = SubResource("Sky_main")
+ambient_light_source = 3
+ambient_light_energy = 0.6
+tonemap_mode = 2
+ssao_enabled = true
+glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="Mat_floor"]
+albedo_color = Color(0.55, 0.36, 0.22, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_wall"]
+albedo_color = Color(0.82, 0.72, 0.6, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_accent"]
+albedo_color = Color(0.16, 0.45, 0.28, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_snow"]
+albedo_color = Color(0.95, 0.97, 1, 1)
+roughness = 0.6
+
+[sub_resource type="BoxShape3D" id="Shape_button_base"]
+size = Vector3(0.6, 1.0, 0.6)
+
+[sub_resource type="StandardMaterial3D" id="Mat_button_base"]
+albedo_color = Color(0.25, 0.25, 0.3, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_button_base"]
+material = SubResource("Mat_button_base")
+size = Vector3(0.6, 1.0, 0.6)
+
+[sub_resource type="StandardMaterial3D" id="Mat_button_cap"]
+albedo_color = Color(0.9, 0.12, 0.12, 1)
+emission_enabled = true
+emission = Color(0.6, 0.05, 0.05, 1)
+
+[sub_resource type="CylinderMesh" id="Mesh_button_cap"]
+material = SubResource("Mat_button_cap")
+top_radius = 0.2
+bottom_radius = 0.22
+height = 0.12
+
+[node name="TestZone" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env_main")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 10, 0)
+light_color = Color(1, 0.95, 0.85, 1)
+shadow_enabled = true
+
+[node name="Level" type="Node3D" parent="."]
+
+[node name="Floor" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+use_collision = true
+size = Vector3(30, 1, 30)
+material = SubResource("Mat_floor")
+
+[node name="WallNorth" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -15)
+use_collision = true
+size = Vector3(30, 3, 0.5)
+material = SubResource("Mat_wall")
+
+[node name="WallSouth" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 15)
+use_collision = true
+size = Vector3(30, 3, 0.5)
+material = SubResource("Mat_wall")
+
+[node name="WallEast" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 1.5, 0)
+use_collision = true
+size = Vector3(0.5, 3, 30)
+material = SubResource("Mat_wall")
+
+[node name="WallWest" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 1.5, 0)
+use_collision = true
+size = Vector3(0.5, 3, 30)
+material = SubResource("Mat_wall")
+
+[node name="Platform" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.6, -8)
+use_collision = true
+size = Vector3(6, 1.2, 6)
+material = SubResource("Mat_accent")
+
+[node name="Ramp" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 0.958, 0.287, 0, -0.287, 0.958, 8, 0.45, -3.6)
+use_collision = true
+size = Vector3(3, 0.3, 4.4)
+material = SubResource("Mat_accent")
+
+[node name="Table" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.45, -4)
+use_collision = true
+size = Vector3(3, 0.9, 1.2)
+material = SubResource("Mat_wall")
+
+[node name="JumpBlock1" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.3, 6)
+use_collision = true
+size = Vector3(1.5, 0.6, 1.5)
+material = SubResource("Mat_snow")
+
+[node name="JumpBlock2" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.6, 6)
+use_collision = true
+size = Vector3(1.5, 1.2, 1.5)
+material = SubResource("Mat_snow")
+
+[node name="Bin" type="CSGBox3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, 6)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("Mat_accent")
+
+[node name="BinHole" type="CSGBox3D" parent="Level/Bin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
+operation = 2
+size = Vector3(1.7, 1, 1.7)
+
+[node name="Items" type="Node3D" parent="."]
+
+[node name="Gift1" parent="Items" instance=ExtResource("3_gift")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.8, 1.2, -4)
+
+[node name="Gift2" parent="Items" instance=ExtResource("3_gift")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1.2, -4)
+
+[node name="Gift3" parent="Items" instance=ExtResource("3_gift")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2, 1.2, -4)
+
+[node name="Gift4" parent="Items" instance=ExtResource("3_gift")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, -2)
+
+[node name="Ball1" parent="Items" instance=ExtResource("4_ball")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0.3, -3)
+
+[node name="Ball2" parent="Items" instance=ExtResource("4_ball")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 0.3, -3.4)
+
+[node name="SpawnButton" type="StaticBody3D" parent="." node_paths=PackedStringArray("spawn_point")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -10)
+script = ExtResource("5_button")
+action_text = "Pulsar: crear regalo"
+item_scene = ExtResource("3_gift")
+spawn_point = NodePath("../GiftSpawnPoint")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SpawnButton"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("Shape_button_base")
+
+[node name="Base" type="MeshInstance3D" parent="SpawnButton"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("Mesh_button_base")
+
+[node name="Cap" type="MeshInstance3D" parent="SpawnButton"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.06, 0)
+mesh = SubResource("Mesh_button_cap")
+
+[node name="GiftSpawnPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 2.5, -8)
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 3)
+
+[node name="HUD" parent="." node_paths=PackedStringArray("player") instance=ExtResource("2_hud")]
+player = NodePath("../Player")

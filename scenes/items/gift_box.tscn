@@ -1,0 +1,45 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/carryable.gd" id="1_carry"]
+
+[sub_resource type="PhysicsMaterial" id="PhysMat_gift"]
+friction = 0.8
+bounce = 0.15
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gift"]
+size = Vector3(0.45, 0.45, 0.45)
+
+[sub_resource type="StandardMaterial3D" id="Mat_paper"]
+albedo_color = Color(0.85, 0.15, 0.2, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_gift"]
+material = SubResource("Mat_paper")
+size = Vector3(0.45, 0.45, 0.45)
+
+[sub_resource type="StandardMaterial3D" id="Mat_ribbon"]
+albedo_color = Color(1, 0.85, 0.3, 1)
+metallic = 0.3
+roughness = 0.4
+
+[sub_resource type="BoxMesh" id="BoxMesh_ribbon"]
+material = SubResource("Mat_ribbon")
+size = Vector3(0.47, 0.47, 0.1)
+
+[node name="GiftBox" type="RigidBody3D"]
+mass = 1.5
+physics_material_override = SubResource("PhysMat_gift")
+script = ExtResource("1_carry")
+display_name = "Regalo"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_gift")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_gift")
+
+[node name="RibbonA" type="MeshInstance3D" parent="Mesh"]
+mesh = SubResource("BoxMesh_ribbon")
+
+[node name="RibbonB" type="MeshInstance3D" parent="Mesh"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
+mesh = SubResource("BoxMesh_ribbon")
