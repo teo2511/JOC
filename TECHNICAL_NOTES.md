@@ -30,14 +30,47 @@ Las teclas usan `physical_keycode` (WASD funciona igual en cualquier distribuci�
 
 `StaticBody3D` con señal `used` y tiempo de espera. Base para máquinas, palancas y botones.
 
-## Multijugador (plan para la Fase 4)
+## Multijugador
 
-- Anfitrión autoritativo con la API de alto nivel de Godot. Transporte intercambiable:
-  `ENetMultiplayerPeer` en desarrollo, `SteamMultiplayerPeer` de GodotSteam para Steam.
-- Cada elfo mueve su propio cuerpo (autoridad del cliente sobre su movimiento) y el anfitrión
-  decide todo lo demás: objetos, máquinas, dinero, saco, temporizadores.
-- Si se va el anfitrión, la partida termina (sin migración de anfitrión). El progreso se guarda
-  al final de cada Noche en el PC del anfitrión.
+**Modelo:** anfitrión autoritativo con la API de alto nivel de Godot. El anfitrión es el peer 1.
+Transporte actual: `ENetMultiplayerPeer`, puerto UDP 24680. "Jugar solo" usa
+`OfflineMultiplayerPeer`, así que el modo solo ejecuta exactamente el mismo código.
+
+**Escenas:**
+- `Main` (raíz) tiene `Level` y un `LevelSpawner`. Solo el anfitrión instancia `Game` bajo `Level`;
+  el spawner la replica en los clientes en orden, antes que lo que hay dentro. Así se evita el
+  error clásico de "nodo no encontrado" cuando el cliente aún no ha cargado la escena.
+- `Game` tiene `PlayerSpawner` (con `spawn_function` que recibe `{id, name, color}`) e
+  `ItemSpawner` (vigila `TestZone/Items`).
+- Los objetos colocados a mano en el nivel se sustituyen al arrancar por copias creadas por el
+  anfitrión (los clientes borran los suyos). Así el spawner los conoce y los envía a quien entre
+  más tarde.
+
+**Quién decide qué:**
+
+| Cosa | Autoridad | Cómo llega a los demás |
+|---|---|---|
+| Movimiento y cámara de cada elfo | Su jugador | `MultiplayerSynchronizer` (30 Hz, sin fiabilidad), suavizado en el resto |
+| Quién lleva un objeto (`holder_peer`) | Anfitrión | Synchronizer "on change" (fiable) |
+| Posición de objetos sueltos | Anfitrión (única física real) | Synchronizer 20 Hz, suavizado en clientes |
+| Objeto en las manos | Cada PC lo coloca en las manos del elfo que lo lleva | (no se envía: sale de holder_peer + posición del elfo) |
+| Usar botones/máquinas | Anfitrión (señal `used` solo allí) | Efectos con RPC `call_local` |
+| Lista de jugadores | Anfitrión | RPC fiable `_sync_players` |
+
+**Validaciones del anfitrión:** distancia máxima 4 m para coger/usar (con la última posición
+recibida, `Player.latest_position()`), un objeto un portador, un jugador un objeto, velocidad de
+lanzamiento máxima 20 m/s.
+
+**Desconexiones:** si sale un cliente, el anfitrión suelta lo que llevaba y borra su elfo (el
+spawner lo borra en los demás). Si sale el anfitrión, los clientes reciben `server_disconnected`
+y vuelven al menú. Sin migración de anfitrión.
+
+**Lección aprendida:** una petición fiable (RPC) puede llegar antes que la última posición
+(sincronización no fiable). Por eso las distancias se validan con la última posición recibida y
+no con la suavizada.
+
+**Siguiente paso de red:** GodotSteam. Solo cambiará `Network.host()` / `join()` (crear lobby,
+unirse por invitación, `SteamMultiplayerPeer`). El resto del juego no sabe qué transporte hay.
 
 ## Tests
 

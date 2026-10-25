@@ -6,14 +6,27 @@ mejoráis el taller y repartís los regalos, mientras os empujáis y os robáis 
 
 - Motor: **Godot 4.6** (versión estándar, no .NET). Lenguaje: **GDScript**.
 - Plataforma: Windows primero, publicación prevista en Steam.
-- Estado: **Fase 3**, zona de pruebas de movimiento e interacción. Ver [TASKS.md](TASKS.md).
+- Estado: **Fase 4**, cooperativo online por IP (ENet) en la zona de pruebas. Ver [TASKS.md](TASKS.md).
 
 ## Cómo abrirlo
 
 1. Instala Godot 4.6 desde https://godotengine.org/download/windows/ (botón *Godot Engine*, no *.NET*).
 2. Descarga este repositorio (GitHub Desktop: *File → Clone repository*, o *Code → Download ZIP*).
 3. Abre Godot, pulsa **Importar**, elige el archivo `project.godot` de esta carpeta y pulsa **Importar y editar**.
-4. Pulsa **F5** (o el botón ▶ arriba a la derecha) para jugar la zona de pruebas.
+4. Pulsa **F5** (o el botón ▶ arriba a la derecha). Aparece el menú: escribe tu nombre y elige
+   **Crear partida**, **Unirse** o **Jugar solo**.
+
+## Jugar online (por ahora, por IP)
+
+- **Dos ventanas en tu PC:** en Godot, menú *Depurar → Personalizar instancias de ejecución...*,
+  activa *Habilitar varias instancias*, pon 2 y en los argumentos escribe `--host` en la primera y
+  `--join=127.0.0.1` en la segunda. Al pulsar F5 se abren las dos ya conectadas.
+- **Con un amigo en tu misma red (WiFi de casa):** tú pulsas *Crear partida*; tu amigo escribe tu
+  IP local (en Windows: `ipconfig`, línea "Dirección IPv4", algo como 192.168.1.20) y pulsa *Unirse*.
+- **Con un amigo por Internet:** de momento hace falta que el anfitrión abra el puerto **UDP 24680**
+  en su router, o que los dos usáis una red virtual gratuita como Tailscale o ZeroTier y os conectáis
+  con esa IP. Esto desaparecerá al pasar a Steam, que conecta sin abrir puertos.
+- Windows puede preguntar si permites a Godot usar la red: acepta en "redes privadas".
 
 ## Controles
 
@@ -36,14 +49,20 @@ godot --headless res://tests/run_tests.tscn
 ```
 
 Imprime cada prueba y termina con código 0 si todo pasa.
+
+Test de multijugador real (dos procesos conectados en el mismo PC, Linux/macOS o Git Bash):
+
+```
+tools/run_net_test.sh ruta/a/godot
+```
 Capturas de pantalla de revisión: `godot res://tools/screenshot.tscn -- <carpeta>`.
 
 ## Estructura
 
 ```
-scenes/    escenas (.tscn): player, items, props, ui, test
+scenes/    escenas (.tscn): main (raíz), game (partida), player, items, props, ui, test (nivel)
 scripts/   código GDScript, misma organización que scenes/
-  autoload/  servicios globales (Settings)
+  autoload/  servicios globales (Settings, Network)
 assets/    modelos, texturas, audio y fuentes
 tests/     tests automáticos
 tools/     utilidades de desarrollo (capturas)

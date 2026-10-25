@@ -22,6 +22,8 @@ const DEFAULT_BINDINGS := {
 var mouse_sensitivity := 0.25 # grados por píxel
 var invert_y := false
 var master_volume := 0.8 # 0..1
+var player_name := "Elfo"
+var last_address := "127.0.0.1"
 var bindings := {}
 
 
@@ -45,6 +47,8 @@ func load_settings() -> void:
 	mouse_sensitivity = cfg.get_value("controles", "sensibilidad", mouse_sensitivity)
 	invert_y = cfg.get_value("controles", "invertir_y", invert_y)
 	master_volume = cfg.get_value("audio", "volumen_general", master_volume)
+	player_name = cfg.get_value("jugador", "nombre", player_name)
+	last_address = cfg.get_value("jugador", "ultima_direccion", last_address)
 	for action in DEFAULT_BINDINGS:
 		var saved = cfg.get_value("teclas", action, null)
 		if saved is Dictionary:
@@ -56,6 +60,8 @@ func save_settings() -> void:
 	cfg.set_value("controles", "sensibilidad", mouse_sensitivity)
 	cfg.set_value("controles", "invertir_y", invert_y)
 	cfg.set_value("audio", "volumen_general", master_volume)
+	cfg.set_value("jugador", "nombre", player_name)
+	cfg.set_value("jugador", "ultima_direccion", last_address)
 	for action in bindings:
 		cfg.set_value("teclas", action, bindings[action])
 	cfg.save(SAVE_PATH)

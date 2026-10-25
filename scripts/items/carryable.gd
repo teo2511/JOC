@@ -2,12 +2,15 @@ class_name Carryable
 extends RigidBody3D
 ## Objeto que un elfo puede coger, soltar y lanzar (regalos, juguetes, materiales).
 ##
-## Mientras alguien lo lleva, el objeto se congela y sigue el punto de agarre del elfo.
-## Solo puede tener un portador a la vez: try_pick() devuelve false si ya está cogido.
-## En la Fase 4 estas llamadas pasarán por el anfitrión, que decidirá quién lo coge.
+## En red, el anfitrión es el único que decide y el único que simula su física:
+## - Los jugadores piden coger o soltar con request_pick / request_release.
+## - El anfitrión valida la petición y cambia holder_peer (quién lo lleva, 0 = nadie).
+## - holder_peer, sync_position y sync_rotation se envían a todos con el MultiplayerSynchronizer.
+## - En los clientes el objeto está congelado y solo se mueve hacia la posición recibida.
+## Mientras alguien lo lleva, cada PC lo coloca en las manos de ese elfo, así que quien lo
+## lleva lo ve pegado a sus manos sin retraso.
 
-signal picked(by: Node3D)
-signal dropped
+signal holder_changed(old_peer: int, new_peer: int)
 
 ## Nombre que aparece en el aviso de interacción ("[E] Coger Regalo").
 @export var display_name := "Objeto"
@@ -15,13 +18,24 @@ signal dropped
 @export var respawn_below_y := -10.0
 
 const FOLLOW_SPEED := 25.0
+const CLIENT_SMOOTHING := 18.0
+## Distancia máxima a la que el anfitrión acepta que alguien coja el objeto.
+const MAX_PICK_DISTANCE := 4.0
+## Velocidad máxima al soltar o lanzar, para que nadie mande velocidades absurdas.
+const MAX_RELEASE_SPEED := 20.0
 
 static var _highlight_material: StandardMaterial3D
 
-var holder: Node3D = null
-var _hold_point: Node3D = null
+## Quién lo lleva (peer id) o 0. Lo cambia solo el anfitrión.
+var holder_peer := 0:
+	set = _set_holder_peer
+## Posición y rotación que el anfitrión envía a los demás.
+var sync_position := Vector3.ZERO
+var sync_rotation := Quaternion.IDENTITY
+
 var _spawn_transform: Transform3D
 var _mesh: MeshInstance3D
+var _exception_body: PhysicsBody3D
 
 
 func _ready() -> void:
@@ -32,6 +46,15 @@ func _ready() -> void:
 	continuous_cd = true
 	_spawn_transform = global_transform
 	_mesh = _find_mesh(self)
+	if multiplayer.is_server():
+		_write_sync()
+	else:
+		freeze = true # en los clientes nunca se simula
+		if sync_position != Vector3.ZERO:
+			global_position = sync_position
+			quaternion = sync_rotation
+	if holder_peer != 0:
+		_apply_holder(0, holder_peer)
 
 
 func get_interaction_text() -> String:
@@ -39,48 +62,138 @@ func get_interaction_text() -> String:
 
 
 func is_held() -> bool:
-	return holder != null
+	return holder_peer != 0
 
 
-func try_pick(new_holder: Node3D, hold_point: Node3D) -> bool:
-	if holder != null:
+# --- Peticiones de los jugadores (se ejecutan en el anfitrión) ---
+
+@rpc("any_peer", "call_local", "reliable")
+func request_pick() -> void:
+	if not multiplayer.is_server():
+		return
+	var sender := _sender_id()
+	var player := Player.find(get_tree(), sender)
+	if player == null or player.latest_position().distance_to(global_position) > MAX_PICK_DISTANCE:
+		return
+	if _peer_is_holding_something(sender):
+		return
+	server_try_pick(sender)
+
+
+@rpc("any_peer", "call_local", "reliable")
+func request_release(velocity: Vector3) -> void:
+	if not multiplayer.is_server():
+		return
+	server_release(_sender_id(), velocity)
+
+
+# --- Reglas del anfitrión (también se usan en los tests) ---
+
+## Da el objeto a peer_id si nadie lo lleva. Devuelve false si ya estaba cogido.
+func server_try_pick(peer_id: int) -> bool:
+	if holder_peer != 0:
 		return false
-	holder = new_holder
-	_hold_point = hold_point
-	freeze = true
-	# Sin colisión con el portador, para que no lo empuje ni lo levante.
-	if new_holder is PhysicsBody3D:
-		add_collision_exception_with(new_holder)
-	set_highlighted(false)
-	picked.emit(new_holder)
+	holder_peer = peer_id
 	return true
 
 
-func drop(inherited_velocity := Vector3.ZERO) -> void:
-	release(inherited_velocity)
-
-
-func throw(direction: Vector3, speed: float, inherited_velocity := Vector3.ZERO) -> void:
-	release(direction.normalized() * speed + inherited_velocity)
-
-
-func release(velocity: Vector3) -> void:
-	if holder == null:
-		return
-	var old_holder := holder
-	holder = null
-	_hold_point = null
-	freeze = false
-	linear_velocity = velocity
+## Suelta el objeto si lo lleva peer_id, con la velocidad indicada (limitada).
+func server_release(peer_id: int, velocity: Vector3) -> bool:
+	if holder_peer == 0 or holder_peer != peer_id:
+		return false
+	holder_peer = 0
+	linear_velocity = velocity.limit_length(MAX_RELEASE_SPEED)
 	angular_velocity = Vector3(randf_range(-2, 2), randf_range(-2, 2), randf_range(-2, 2))
-	# Se recupera la colisión con el portador un instante después, cuando ya se ha alejado.
-	if old_holder is PhysicsBody3D:
-		get_tree().create_timer(0.3).timeout.connect(
-			func():
-				if is_instance_valid(old_holder) and holder != old_holder:
-					remove_collision_exception_with(old_holder)
+	return true
+
+
+## Lo suelta sin velocidad (por ejemplo, si quien lo llevaba se desconecta).
+func server_force_release() -> void:
+	if holder_peer != 0:
+		server_release(holder_peer, Vector3.ZERO)
+
+
+func server_respawn() -> void:
+	server_force_release()
+	global_transform = _spawn_transform
+	linear_velocity = Vector3.ZERO
+	angular_velocity = Vector3.ZERO
+
+
+# --- Estado y movimiento ---
+
+func _set_holder_peer(value: int) -> void:
+	var old := holder_peer
+	if value == old:
+		return
+	holder_peer = value
+	if is_inside_tree():
+		_apply_holder(old, value)
+
+
+func _apply_holder(old: int, new: int) -> void:
+	if multiplayer.is_server():
+		freeze = new != 0
+	# El objeto no debe chocar con quien lo lleva.
+	if new != 0:
+		var body := Player.find(get_tree(), new)
+		if body:
+			_set_exception(body)
+		set_highlighted(false)
+	else:
+		# Se recupera la colisión un instante después, cuando ya se ha alejado de sus manos.
+		get_tree().create_timer(0.3).timeout.connect(func():
+			if holder_peer == 0:
+				_set_exception(null)
 		)
-	dropped.emit()
+	holder_changed.emit(old, new)
+	get_tree().call_group("local_interaction", "on_item_holder_changed", self, old, new)
+
+
+func _set_exception(body: PhysicsBody3D) -> void:
+	if is_instance_valid(_exception_body):
+		remove_collision_exception_with(_exception_body)
+	_exception_body = body
+	if body:
+		add_collision_exception_with(body)
+
+
+func _physics_process(delta: float) -> void:
+	if holder_peer != 0:
+		var player := Player.find(get_tree(), holder_peer)
+		if player:
+			var target := player.get_hold_transform()
+			var t := minf(1.0, FOLLOW_SPEED * delta)
+			global_position = global_position.lerp(target.origin, t)
+			global_basis = global_basis.slerp(target.basis.orthonormalized(), t).orthonormalized()
+		elif multiplayer.is_server():
+			server_force_release()
+
+	if multiplayer.is_server():
+		if holder_peer == 0 and global_position.y < respawn_below_y:
+			server_respawn()
+		_write_sync()
+	elif holder_peer == 0:
+		var t := 1.0 - exp(-CLIENT_SMOOTHING * delta)
+		global_position = global_position.lerp(sync_position, t)
+		quaternion = quaternion.slerp(sync_rotation, t)
+
+
+func _write_sync() -> void:
+	sync_position = global_position
+	sync_rotation = quaternion
+
+
+func _sender_id() -> int:
+	var id := multiplayer.get_remote_sender_id()
+	return id if id != 0 else multiplayer.get_unique_id()
+
+
+func _peer_is_holding_something(peer_id: int) -> bool:
+	for item in get_tree().get_nodes_in_group("carryable"):
+		if item.holder_peer == peer_id:
+			return true
+	return false
 
 
 func set_highlighted(on: bool) -> void:
@@ -92,23 +205,6 @@ func set_highlighted(on: bool) -> void:
 		_highlight_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		_highlight_material.albedo_color = Color(1.0, 0.95, 0.6, 0.35)
 	_mesh.material_overlay = _highlight_material if on else null
-
-
-func respawn() -> void:
-	if holder != null:
-		release(Vector3.ZERO)
-	global_transform = _spawn_transform
-	linear_velocity = Vector3.ZERO
-	angular_velocity = Vector3.ZERO
-
-
-func _physics_process(delta: float) -> void:
-	if holder != null and is_instance_valid(_hold_point):
-		var target := _hold_point.global_transform
-		global_position = global_position.lerp(target.origin, minf(1.0, FOLLOW_SPEED * delta))
-		global_basis = global_basis.slerp(target.basis.orthonormalized(), minf(1.0, FOLLOW_SPEED * delta)).orthonormalized()
-	elif global_position.y < respawn_below_y:
-		respawn()
 
 
 func _find_mesh(node: Node) -> MeshInstance3D:

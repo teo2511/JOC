@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/items/carryable.gd" id="1_carry"]
 
@@ -25,6 +25,17 @@ roughness = 0.4
 material = SubResource("Mat_ribbon")
 size = Vector3(0.47, 0.47, 0.1)
 
+[sub_resource type="SceneReplicationConfig" id="Repl_item"]
+properties/0/path = NodePath(".:holder_peer")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:sync_position")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:sync_rotation")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+
 [node name="GiftBox" type="RigidBody3D"]
 mass = 1.5
 physics_material_override = SubResource("PhysMat_gift")
@@ -43,3 +54,7 @@ mesh = SubResource("BoxMesh_ribbon")
 [node name="RibbonB" type="MeshInstance3D" parent="Mesh"]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
 mesh = SubResource("BoxMesh_ribbon")
+
+[node name="Sync" type="MultiplayerSynchronizer" parent="."]
+replication_interval = 0.05
+replication_config = SubResource("Repl_item")
