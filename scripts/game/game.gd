@@ -26,6 +26,7 @@ func _ready() -> void:
 	state.changed.connect(_apply_player_upgrades)
 	_take_over_placed_items()
 	if multiplayer.is_server():
+		state.goal_reached.connect(func(): state.server_start_delivery.call_deferred())
 		Network.player_registered.connect(_on_player_registered)
 		Network.player_left.connect(_on_player_left)
 		for id in Network.players:
@@ -58,6 +59,18 @@ func spawn_item(scene: PackedScene, global_pos: Vector3, velocity := Vector3.ZER
 	items_root.add_child(item, true)
 	item.linear_velocity = velocity
 	return item
+
+
+## Lo llama cada casa al recibir un regalo: si todas tienen los suyos, termina la noche.
+func server_check_delivery() -> void:
+	var houses := get_tree().get_nodes_in_group("house")
+	if not state.delivering or houses.is_empty() or not houses.all(func(h): return h.is_satisfied()):
+		return
+	for h in houses:
+		h.server_reset()
+	state.server_finish_night()
+	if state.is_complete(): # sobraban regalos suficientes para otra noche
+		state.server_start_delivery()
 
 
 func _on_player_registered(id: int) -> void:

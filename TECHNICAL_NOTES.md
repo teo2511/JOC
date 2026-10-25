@@ -116,6 +116,22 @@ unirse por invitación, `SteamMultiplayerPeer`). El resto del juego no sabe qué
 - La palanca invierte la cinta con `Conveyor.server_reverse(segundos)`, que se avisa a todos por RPC.
 - El HUD muestra escarcha (`Frost`) al recibir la señal `Player.hit_received`.
 
+## Reparto (Fase 8)
+
+- `WorkshopState` añade `night`, `delivering`, `sleigh_gifts` y `delivered` (sincronizados) y la
+  señal `announced(text)` para los avisos grandes del HUD (por RPC desde el anfitrión).
+- En el anfitrión, `goal_reached` llama (diferido) a `server_start_delivery()`: los regalos del saco
+  pasan a `sleigh_gifts` y el trineo (`sleigh.gd`) se hace visible y usable.
+- El trineo crea un regalo nuevo en las manos de quien lo usa y lo marca `from_sleigh` (solo en el
+  anfitrión). El saco escupe esos regalos para que no se cobren dos veces.
+- Cada casa (`house.gd`, grupo "house") tiene `wanted` y `received` (sincronizado). La chimenea es un
+  Area3D grande sobre el tiro; cuenta en `body_entered` además del escaneo, porque un regalo lanzado
+  la cruza en menos de un escaneo (0,15 s).
+- `Game.server_check_delivery()` termina la noche cuando todas las casas están servidas: reinicia
+  las casas, `server_finish_night()` devuelve al saco lo que sobre en el trineo y sube `night`.
+- La suma de `wanted` de las casas es igual al objetivo del saco (10). Si se cambia uno, hay que
+  cambiar el otro (la Fase 9 lo hará automático por noche).
+
 ## Tests
 
 `tests/run_tests.tscn` es una escena y no un script `-s` porque los scripts `-s` se compilan

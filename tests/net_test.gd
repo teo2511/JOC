@@ -132,6 +132,28 @@ func _run_host() -> void:
 	check(await wait_for(func(): return game.pranks.is_immune(client_id), 3.0), "la bola de nieve da al cliente")
 	check(await wait_for(func(): return not is_instance_valid(ball) or ball.consumed, 3.0), "la bola se deshace al chocar")
 
+	# Reparto: se llena el saco, el cliente saca un regalo del trineo y lo suelta; el anfitrión
+	# lo lleva a la chimenea y luego completa las casas.
+	while not game.state.is_complete():
+		game.state.server_add_gift()
+	check(await wait_for(func(): return game.state.delivering), "el saco lleno trae el trineo")
+	var from_sleigh := func(): return get_tree().get_nodes_in_group("carryable").filter(
+		func(i): return i.kind == "gift" and i.from_sleigh)
+	check(await wait_for(func(): return from_sleigh.call().any(func(i): return i.holder_peer == client_id)), "el cliente saca un regalo del trineo")
+	var sleigh_gift: Carryable = from_sleigh.call()[0]
+	check(await wait_for(func(): return sleigh_gift.holder_peer == 0), "el cliente lo suelta")
+	var house1 = game.get_node("TestZone/Yard/House1")
+	sleigh_gift.global_position = house1.get_node("Chimney/CollisionShape3D").global_position
+	sleigh_gift.linear_velocity = Vector3.ZERO
+	check(await wait_for(func(): return house1.received == 1), "el regalo entra por la chimenea")
+	await wait_seconds(1.5) # deja que el cliente vea la casa con 1 regalo antes de completar las demás
+	for house in get_tree().get_nodes_in_group("house"):
+		while not house.is_satisfied() and game.state.delivering:
+			var count: int = house.received
+			game.spawn_item(preload("res://scenes/items/gift_box.tscn"), house.get_node("Chimney/CollisionShape3D").global_position)
+			await wait_for(func(): return house.received > count, 2.0)
+	check(await wait_for(func(): return game.state.night == 2 and not game.state.delivering), "todas las casas servidas: empieza la noche 2")
+
 	check(await wait_for(func(): return Network.players.size() == 1, 20.0), "el cliente sale de la partida")
 	await wait_seconds(0.3)
 	check(main.get_game().get_node("Players").get_child_count() == 1, "su elfo desaparece")
@@ -194,7 +216,7 @@ func _run_client() -> void:
 	var machine = game.get_node("TestZone/Workshop/ToyMachine")
 	check(await wait_for(func(): return machine.working and machine.status_text.begins_with("Fabricando")), "ve la fábrica trabajando")
 	check(await wait_for(func(): return game.state.gifts_in_sack == 1), "ve el saco con 1 regalo")
-	check(game.hud.sack_counter.text.begins_with("Saco: 1 / 10"), "su pantalla muestra Saco: 1 / 10")
+	check(game.hud.sack_counter.text.contains("Saco: 1 / 10"), "su pantalla muestra Saco: 1 / 10")
 
 	# Mejoras: compra la cinta en el tablón.
 	me.interaction.drop_held() # con las manos ocupadas no se puede pulsar nada
@@ -228,6 +250,24 @@ func _run_client() -> void:
 	check(me.global_position.distance_to(pushed_from) > 0.5, "sale despedido en su propia pantalla")
 	check(await wait_for(func(): return hits.has("snow")), "le llega una bola de nieve")
 	check(game.hud.frost.color.a > 0.3, "ve escarcha en la pantalla")
+
+	# Reparto.
+	var sleigh = game.get_node("TestZone/Yard/Sleigh")
+	check(await wait_for(func(): return game.state.delivering and sleigh.visible), "ve llegar el trineo al patio")
+	me.global_position = sleigh.global_position + Vector3(0, 0, 2.0)
+	me.velocity = Vector3.ZERO
+	me.rotation = Vector3.ZERO
+	me.head.rotation.x = deg_to_rad(-25)
+	await wait_seconds(0.3)
+	check(await wait_for(func(): return me.interaction._focused == sleigh, 3.0), "mira el trineo")
+	me.interaction.interact()
+	check(await wait_for(func(): return me.interaction.held != null and me.interaction.held.kind == "gift"), "recibe un regalo del trineo")
+	me.interaction.drop_held()
+	var house1 = game.get_node("TestZone/Yard/House1")
+	check(await wait_for(func(): return house1.received == 1 and house1.status_text == "1 / 3 regalos"), "ve la casa con 1 / 3 regalos")
+	check(await wait_for(func(): return game.hud.sack_counter.text.contains("Reparto: 1 / 10")), "su pantalla muestra Reparto: 1 / 10")
+	check(await wait_for(func(): return game.state.night == 2 and not sleigh.visible), "ve irse el trineo y empezar la noche 2")
+	check(await wait_for(func(): return game.hud.banner.text.contains("Reparto completado")), "ve el aviso de reparto completado")
 
 	await wait_seconds(0.5)
 	Network.leave()

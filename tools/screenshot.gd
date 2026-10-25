@@ -13,6 +13,8 @@ const VIEWS := [
 	{"name": "tablon", "pos": Vector3(-9.0, 0.1, -5.8), "yaw": 90.0, "pitch": -5.0},
 	{"name": "taller_mejorado", "pos": Vector3(-4, 0.1, -6.5), "yaw": 0.0, "pitch": -8.0, "upgrade": true},
 	{"name": "nieve", "pos": Vector3(7, 0.1, 7.5), "yaw": 180.0, "pitch": -12.0, "snow": true},
+	{"name": "patio", "pos": Vector3(16, 0.1, 0), "yaw": -90.0, "pitch": -2.0, "delivery": true},
+	{"name": "chimenea", "pos": Vector3(28, 0.1, -3.5), "yaw": 20.0, "pitch": 22.0, "delivery": true},
 ]
 
 
@@ -36,6 +38,13 @@ func _ready() -> void:
 			for i in [Upgrades.FAST_MACHINE, Upgrades.FAST_MACHINE, Upgrades.CONVEYOR, Upgrades.AUTO_WRAP]:
 				zone.state.server_buy(i, "Teo")
 			zone.state.server_add_gift()
+		if view.get("delivery", false) and not zone.state.delivering:
+			while not zone.state.is_complete():
+				zone.state.server_add_gift()
+			zone.state.server_start_delivery()
+			var house: Node = zone.get_node("TestZone/Yard/House2")
+			house.received = house.wanted
+			other.sync_position = Vector3(22, 0.1, 2)
 		if view.get("snow", false):
 			other.sync_position = Vector3(5.2, 0.1, 10.5)
 			for i in 3:

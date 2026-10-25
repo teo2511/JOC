@@ -1,6 +1,7 @@
 extends Station
 ## Saco de Santa: cuenta los regalos que entran por la boca. Cada regalo se gasta al entrar,
-## así que nunca cuenta dos veces. Lo que no es un regalo lo escupe hacia fuera.
+## así que nunca cuenta dos veces. Lo que no es un regalo lo escupe hacia fuera, y también los
+## regalos que ya han salido del trineo (esos van a las chimeneas).
 
 @export var spit_speed := 4.0
 
@@ -14,7 +15,7 @@ func get_interaction_text() -> String:
 
 func server_scan() -> void:
 	for item in items_in(_mouth):
-		if item.kind == "gift":
+		if item.kind == "gift" and not item.from_sleigh:
 			if item.server_consume():
 				game().state.server_add_gift()
 		else:

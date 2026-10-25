@@ -50,7 +50,7 @@ Fuera de alcance: todo lo de la sección 13.3 del prompt maestro.
 | 5 | Primera cadena de producción | Hecha (teo: "sí que se entiende") |
 | 6 | Progresión incremental | Implementada y probada (tests y red); pendiente de prueba por teo. Falta el sonido |
 | 7 | Caos entre jugadores | Implementada y probada (tests y red); pendiente de prueba por teo. Falta sonido y animación |
-| 8 | Reparto navideño | Pendiente |
+| 8 | Reparto navideño | Implementada y probada (tests y red); pendiente de prueba por teo. Trineo fijo |
 | 9 | Ciclo completo | Pendiente |
 | 10 | Pulido y optimización | Pendiente |
 | 11 | Preparación para Steam | Pendiente |
