@@ -101,6 +101,21 @@ unirse por invitación, `SteamMultiplayerPeer`). El resto del juego no sabe qué
   sobre la mesa (marcador `Workshop/TableDrop`). Con cinta, la fábrica escupe más despacio para
   que el juguete caiga encima.
 
+## Bromas (Fase 7)
+
+- `Pranks` (nodo `Game/Pranks`) concentra las reglas y solo actúa en el anfitrión: alcance 2,3 m,
+  recarga del empujón 1,5 s e inmunidad 2 s para quien recibe un golpe (no se encadenan).
+- El jugador pide el empujón con el RPC `Player.request_push_player` / `request_push_item`. El
+  anfitrión comprueba la distancia con `latest_position()`, suelta lo que lleva el objetivo y le
+  manda `receive_hit` a su dueño, porque cada elfo se simula en el PC de su jugador. `receive_hit`
+  solo se acepta si viene del anfitrión. Durante 0,35 s el elfo apenas frena (`KNOCKBACK_ACCEL`),
+  para que se note el empujón.
+- Bola de nieve: `Carryable` con monitor de contactos. Solo hace daño si se soltó a ≥5 m/s (se lanzó)
+  y se deshace en el primer choque. Al dar a un elfo que no es quien la lanzó llama a `server_hit`.
+- El montón de nieve reutiliza `material_bin.gd` con la escena de la bola (máximo 8 sueltas).
+- La palanca invierte la cinta con `Conveyor.server_reverse(segundos)`, que se avisa a todos por RPC.
+- El HUD muestra escarcha (`Frost`) al recibir la señal `Player.hit_received`.
+
 ## Tests
 
 `tests/run_tests.tscn` es una escena y no un script `-s` porque los scripts `-s` se compilan

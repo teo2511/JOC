@@ -14,6 +14,12 @@ extends CharacterBody3D
 @export var respawn_below_y := -10.0
 
 const MAX_PITCH := deg_to_rad(85.0)
+## Tras un empujón o una bola de nieve, el elfo controla poco su movimiento durante este tiempo.
+const KNOCKBACK_TIME := 0.35
+const KNOCKBACK_ACCEL := 4.0
+
+## Avisa al HUD del elfo propio (escarcha en la pantalla, etc.).
+signal hit_received(kind: String)
 const REMOTE_SMOOTHING := 15.0
 
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
@@ -36,6 +42,7 @@ var sync_pitch := 0.0
 @onready var name_tag: Label3D = $NameTag
 
 var _spawn_transform: Transform3D
+var _knockback_left := 0.0
 
 
 ## Busca el elfo de un jugador por su peer id.
@@ -127,6 +134,9 @@ func _physics_process(delta: float) -> void:
 
 	var wish := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)).normalized() * move_speed * speed_multiplier
 	var accel := ground_acceleration if is_on_floor() else air_acceleration
+	if _knockback_left > 0.0:
+		_knockback_left -= delta
+		accel = KNOCKBACK_ACCEL
 	var horizontal := Vector3(velocity.x, 0.0, velocity.z).move_toward(wish, accel * delta)
 	velocity.x = horizontal.x
 	velocity.z = horizontal.z
@@ -153,6 +163,43 @@ func _follow_remote(delta: float) -> void:
 		global_position = global_position.lerp(sync_position, t)
 	rotation.y = lerp_angle(rotation.y, sync_yaw, t)
 	head.rotation.x = lerpf(head.rotation.x, sync_pitch, t)
+
+
+## Petición de empujón de este elfo a otro (la decide el anfitrión).
+@rpc("any_peer", "call_local", "reliable")
+func request_push_player(target_id: int) -> void:
+	if multiplayer.is_server() and _rpc_sender() == peer_id:
+		_game().pranks.server_push_player(peer_id, target_id)
+
+
+## Petición de empujón de este elfo a un objeto suelto.
+@rpc("any_peer", "call_local", "reliable")
+func request_push_item(item_path: NodePath) -> void:
+	if multiplayer.is_server() and _rpc_sender() == peer_id:
+		_game().pranks.server_push_item(peer_id, get_node_or_null(item_path) as Carryable)
+
+
+func _rpc_sender() -> int:
+	var id := multiplayer.get_remote_sender_id()
+	return id if id != 0 else multiplayer.get_unique_id()
+
+
+func _game() -> Game:
+	return get_tree().get_first_node_in_group("game") as Game
+
+
+## Lo envía el anfitrión al dueño del elfo: el empujón se aplica donde se simula el movimiento.
+@rpc("any_peer", "call_local", "reliable")
+func receive_hit(impulse: Vector3, kind: String) -> void:
+	if multiplayer.get_remote_sender_id() not in [0, 1]:
+		return # solo el anfitrión puede empujar
+	apply_hit(impulse, kind)
+
+
+func apply_hit(impulse: Vector3, kind: String) -> void:
+	velocity += impulse
+	_knockback_left = KNOCKBACK_TIME
+	hit_received.emit(kind)
 
 
 func respawn() -> void:

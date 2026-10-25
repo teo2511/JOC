@@ -4,6 +4,7 @@ extends Node
 ##
 ## [E] coge el objeto que miras, lo suelta si ya llevas uno, o usa un botón/máquina.
 ## [Clic izquierdo] lanza el objeto que llevas.
+## [Clic derecho] empuja al elfo que tienes delante o al objeto que miras.
 ## Solo funciona en el elfo propio. Coger y usar son peticiones al anfitrión: el objeto
 ## pasa a tus manos cuando él lo confirma (on_item_holder_changed).
 
@@ -40,6 +41,8 @@ func _physics_process(_delta: float) -> void:
 		interact()
 	elif Input.is_action_just_pressed("throw"):
 		throw_held()
+	elif Input.is_action_just_pressed("push"):
+		push()
 
 
 ## Acción principal [E]. Devuelve true si ha enviado alguna petición.
@@ -54,6 +57,37 @@ func interact() -> bool:
 		_focused.request_use.rpc_id(1)
 		return true
 	return false
+
+
+## Empuja al elfo más cercano que tengas delante; si no hay, al objeto que miras.
+## Devuelve true si ha enviado la petición (el anfitrión decide si se aplica).
+func push() -> bool:
+	var target := find_push_target()
+	if target:
+		player.request_push_player.rpc_id(1, target.peer_id)
+		return true
+	if _focused is Carryable:
+		player.request_push_item.rpc_id(1, _focused.get_path())
+		return true
+	return false
+
+
+func find_push_target() -> Player:
+	var forward := -player.global_basis.z
+	forward.y = 0
+	forward = forward.normalized()
+	var best: Player = null
+	var best_dist := Pranks.PUSH_RANGE
+	for other in get_tree().get_nodes_in_group("player"):
+		if other == player:
+			continue
+		var offset: Vector3 = other.global_position - player.global_position
+		offset.y = 0
+		var dist := offset.length()
+		if dist <= best_dist and (dist < 0.3 or forward.dot(offset / dist) > 0.5):
+			best = other
+			best_dist = dist
+	return best
 
 
 func drop_held() -> void:

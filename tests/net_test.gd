@@ -7,6 +7,7 @@ extends Node
 
 const PORT := 24699
 const STEP_TIMEOUT := 10.0
+const PRANK_SPOT := Vector3(8, 0.1, 2) # suelo despejado
 
 var _failures := 0
 var _passes := 0
@@ -107,6 +108,30 @@ func _run_host() -> void:
 	check(await wait_for(func(): return game.state.level(Upgrades.CONVEYOR) == 1), "el cliente compra la cinta")
 	check(game.state.money == 210 - Upgrades.price(Upgrades.CONVEYOR, 0), "se descuenta del dinero común")
 
+	# Bromas: el cliente empuja al anfitrión, este le devuelve el empujón y luego una bola de nieve.
+	var hits: Array[String] = []
+	host_player.hit_received.connect(func(kind): hits.append(kind))
+	host_player.global_position = PRANK_SPOT
+	host_player.velocity = Vector3.ZERO
+	check(await wait_for(func(): return hits.has("push")), "el cliente empuja al anfitrión")
+	check(gift1.holder_peer == 0, "al anfitrión se le cae el regalo que llevaba")
+	await wait_seconds(0.3)
+	check(host_player.global_position.distance_to(PRANK_SPOT) > 0.8, "el anfitrión sale despedido (%.1f m)" % host_player.global_position.distance_to(PRANK_SPOT))
+	var client_player := Player.find(get_tree(), client_id)
+	host_player.global_position = client_player.latest_position() + Vector3(0, 0, -1.2)
+	host_player.velocity = Vector3.ZERO
+	await wait_seconds(0.2)
+	host_player.request_push_player(client_id)
+	check(game.pranks.is_immune(client_id), "el anfitrión empuja al cliente")
+	await wait_seconds(Pranks.IMMUNITY_TIME + 0.8) # inmunidad y que el cliente se quede quieto
+	var target := client_player.latest_position() + Vector3.UP * 0.9
+	var ball := game.spawn_item(preload("res://scenes/items/snowball.tscn"), target + Vector3(1.6, 0.2, 0))
+	host_player.global_position = ball.global_position + Vector3(1.0, -1.0, 0)
+	await wait_seconds(0.2)
+	check(ball.server_try_pick(1) and ball.server_release(1, (target - ball.global_position).normalized() * 12.0), "el anfitrión lanza una bola de nieve")
+	check(await wait_for(func(): return game.pranks.is_immune(client_id), 3.0), "la bola de nieve da al cliente")
+	check(await wait_for(func(): return not is_instance_valid(ball) or ball.consumed, 3.0), "la bola se deshace al chocar")
+
 	check(await wait_for(func(): return Network.players.size() == 1, 20.0), "el cliente sale de la partida")
 	await wait_seconds(0.3)
 	check(main.get_game().get_node("Players").get_child_count() == 1, "su elfo desaparece")
@@ -185,6 +210,24 @@ func _run_client() -> void:
 	var conveyor = game.get_node("TestZone/Workshop/Conveyor")
 	check(await wait_for(func(): return conveyor.visible), "ve aparecer la cinta")
 	check(await wait_for(func(): return game.hud.banner.text.contains("Cliente")), "el aviso dice quién la ha comprado")
+
+	# Bromas.
+	var hits: Array[String] = []
+	me.hit_received.connect(func(kind): hits.append(kind))
+	check(await wait_for(func(): return host_player.global_position.distance_to(PRANK_SPOT) < 0.5), "ve al anfitrión en el sitio de las bromas")
+	me.global_position = PRANK_SPOT + Vector3(0, 0, 1.4)
+	me.velocity = Vector3.ZERO
+	me.rotation = Vector3.ZERO # mirando hacia -Z, hacia el anfitrión
+	me.head.rotation.x = 0
+	await wait_seconds(0.3)
+	check(me.interaction.find_push_target() == host_player, "tiene al anfitrión delante para empujarlo")
+	check(me.interaction.push(), "empuja al anfitrión")
+	check(await wait_for(func(): return hits.has("push")), "el anfitrión le devuelve el empujón")
+	var pushed_from := me.global_position
+	await wait_seconds(0.3)
+	check(me.global_position.distance_to(pushed_from) > 0.5, "sale despedido en su propia pantalla")
+	check(await wait_for(func(): return hits.has("snow")), "le llega una bola de nieve")
+	check(game.hud.frost.color.a > 0.3, "ve escarcha en la pantalla")
 
 	await wait_seconds(0.5)
 	Network.leave()

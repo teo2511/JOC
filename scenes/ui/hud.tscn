@@ -16,6 +16,16 @@ content_margin_bottom = 20.0
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
 
+[node name="Frost" type="ColorRect" parent="."]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.92, 0.97, 1, 0)
+
 [node name="Crosshair" type="Label" parent="."]
 unique_name_in_owner = true
 anchors_preset = 8
@@ -63,7 +73,7 @@ theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 15
 text = "ZONA DE PRUEBAS
 WASD moverse · Espacio saltar · E coger/soltar/usar
-Clic izquierdo lanzar · Esc opciones"
+Clic izquierdo lanzar · Clic derecho empujar · Esc opciones"
 
 [node name="PlayerList" type="Label" parent="."]
 unique_name_in_owner = true

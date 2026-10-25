@@ -1,0 +1,53 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/stations/material_bin.gd" id="1_bin"]
+[ext_resource type="PackedScene" path="res://scenes/items/snowball.tscn" id="2_snowball"]
+
+[sub_resource type="CylinderShape3D" id="Shape_pile"]
+height = 0.7
+radius = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_snow"]
+albedo_color = Color(0.95, 0.97, 1, 1)
+roughness = 0.85
+
+[sub_resource type="SphereMesh" id="Mesh_pile"]
+material = SubResource("Mat_snow")
+radius = 0.9
+height = 1.0
+
+[sub_resource type="SceneReplicationConfig" id="Repl_bin"]
+properties/0/path = NodePath(".:status_text")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+
+[node name="SnowPile" type="StaticBody3D"]
+script = ExtResource("1_bin")
+item_scene = ExtResource("2_snowball")
+item_kind = "snowball"
+max_loose_blocks = 8
+too_many_text = "¡Ya hay muchas bolas!"
+title = "NIEVE"
+action_text = "Hacer bola de nieve"
+cooldown = 0.6
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
+shape = SubResource("Shape_pile")
+
+[node name="Mound" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0.1, 0)
+mesh = SubResource("Mesh_pile")
+
+[node name="DropPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+
+[node name="Label" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+billboard = 1
+outline_size = 10
+font_size = 40
+pixel_size = 0.008
+
+[node name="Sync" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("Repl_bin")

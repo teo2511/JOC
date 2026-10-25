@@ -67,3 +67,14 @@ Estados: **Hecho** (implementado y probado), **Implementado** (falta probarlo a 
 - [ ] Sonido al comprar y de las máquinas (Fase 10, falta conseguir sonidos con licencia). **Pendiente**
 - [ ] Mientras llevas algo en las manos, E suelta y no pulsa botones. Valorar tras las pruebas si molesta. **Pendiente**
 - [ ] Equilibrar precios y tiempos tras jugar con amigos. **Pendiente**
+
+## Fase 7. Caos entre elfos
+
+- [x] Reglas de bromas en un solo sitio (`Pranks`): alcance, recarga del empujón e inmunidad tras un golpe. **Hecho** (tests)
+- [x] Empujón con clic derecho: se cae lo que lleva, sale despedido; se aplica en el PC de quien lo recibe. **Hecho** (tests y red)
+- [x] Empujar objetos sueltos con clic derecho. **Hecho** (tests)
+- [x] Montón de nieve y bolas de nieve: al dar a otro elfo, se le cae lo que lleva y ve escarcha. **Hecho** (tests, red y captura)
+- [x] Palanca que pone la cinta al revés 4 s (recarga 12 s), solo si el equipo tiene cinta. **Hecho** (tests)
+- [ ] Sonidos de empujón, golpe de nieve y palanca (Fase 10). **Pendiente**
+- [ ] Animación del empujón (ahora el elfo solo sale despedido). **Pendiente**
+- [ ] Ajustar fuerza, recarga e inmunidad tras jugar con amigos (que moleste, pero no frustre). **Pendiente**

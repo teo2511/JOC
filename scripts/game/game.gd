@@ -17,6 +17,7 @@ const BOOTS_PER_LEVEL := 0.15
 @onready var items_root: Node3D = $TestZone/Items
 @onready var hud = $HUD
 @onready var state: WorkshopState = $State
+@onready var pranks: Pranks = $Pranks
 
 
 func _ready() -> void:
@@ -67,6 +68,7 @@ func _on_player_registered(id: int) -> void:
 
 
 func _on_player_left(id: int) -> void:
+	pranks.forget(id)
 	for item in get_tree().get_nodes_in_group("carryable"):
 		if item.holder_peer == id:
 			item.server_force_release()
